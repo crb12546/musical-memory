@@ -1,21 +1,33 @@
-import { Toaster } from 'sonner'
-import { ProjectList } from './components/ui/project-list'
-import { Button } from './components/ui/button'
 import { useState, useEffect } from 'react'
+import { Toaster } from 'sonner'
+import { Button } from './components/ui/button'
+import { Card } from './components/ui/card'
+import { ProjectList } from './components/ui/project-list'
 import { ProjectForm } from './components/ui/project-form'
 import { ResumeUpload } from './components/ui/resume-upload'
 import { InterviewScheduler } from './components/ui/interview-scheduler'
+import { AnalyticsDashboard } from './components/ui/analytics-dashboard'
 import { api } from './lib/api'
-import type { Candidate, Project } from './lib/api'
+import type { Candidate, Project, Interview } from './lib/api'
 
 export default function App() {
   const [showProjectForm, setShowProjectForm] = useState(false)
   const [showResumeUpload, setShowResumeUpload] = useState(false)
   const [selectedProject, setSelectedProject] = useState<Project | null>(null)
   const [candidates, setCandidates] = useState<Candidate[]>([])
+  const [interviews, setInterviews] = useState<Interview[]>([])
+  const [projects, setProjects] = useState<Project[]>([])
 
   useEffect(() => {
-    api.getCandidates().then(setCandidates)
+    Promise.all([
+      api.getCandidates(),
+      api.getProjects(),
+      api.getInterviews()
+    ]).then(([candidatesData, projectsData, interviewsData]) => {
+      setCandidates(candidatesData)
+      setProjects(projectsData)
+      setInterviews(interviewsData)
+    })
   }, [])
 
   return (
@@ -35,9 +47,13 @@ export default function App() {
       </header>
       <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         <ProjectList 
-          projects={[]}
+          projects={projects}
           onProjectSelect={(project) => setSelectedProject(project)}
         />
+        <div className="mt-8">
+          <h2 className="text-xl font-semibold mb-4">数据分析</h2>
+          <AnalyticsDashboard projects={projects} interviews={interviews} />
+        </div>
         {showProjectForm && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-lg p-6 w-full max-w-2xl">

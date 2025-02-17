@@ -72,7 +72,7 @@ export function ProjectForm({
   project,
   onSuccess 
 }: { 
-  project?: Project;
+  project?: Project | null;
   onSuccess?: () => void;
 }) {
   const [loading, setLoading] = useState(false);
