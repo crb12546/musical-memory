@@ -40,7 +40,7 @@ import {
   TableHeader,
   TableRow,
 } from "./table";
-import { ProjectDetail } from "./project-detail";
+// Removed ProjectDetail import as it's replaced by edit functionality
 import type { Project } from "../../lib/api";
 import { format } from "date-fns";
 
@@ -93,11 +93,17 @@ const getPriorityLabel = (priority: string) => {
   }
 };
 
-export function ProjectList({ projects }: { projects: Project[] }) {
+export function ProjectList({ 
+  projects,
+  onProjectSelect
+}: { 
+  projects: Project[];
+  onProjectSelect?: (project: Project) => void;
+}) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
-  const [selectedProject, setSelectedProject] = React.useState<Project | null>(null);
+  // Removed selectedProject state as it's handled by parent component
   const [statusFilter, setStatusFilter] = React.useState("all");
   const [priorityFilter, setPriorityFilter] = React.useState("all");
 
@@ -174,7 +180,7 @@ export function ProjectList({ projects }: { projects: Project[] }) {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>操作</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => setSelectedProject(project)}>
+              <DropdownMenuItem onClick={() => onProjectSelect?.(project)}>
                 编辑项目
               </DropdownMenuItem>
               <DropdownMenuSeparator />
@@ -347,12 +353,7 @@ export function ProjectList({ projects }: { projects: Project[] }) {
         </div>
       </div>
 
-      {selectedProject && (
-        <ProjectDetail
-          project={selectedProject}
-          onClose={() => setSelectedProject(null)}
-        />
-      )}
+      {/* Project detail view removed as it's replaced by edit functionality */}
     </div>
   );
 }

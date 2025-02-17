@@ -67,7 +67,13 @@ const priorityOptions = [
   { value: "urgent", label: "紧急" },
 ];
 
-export function ProjectForm({ onSuccess }: { onSuccess?: () => void }) {
+export function ProjectForm({ 
+  project,
+  onSuccess 
+}: { 
+  project?: Project;
+  onSuccess?: () => void;
+}) {
   const [loading, setLoading] = useState(false);
   const [responsibilities, setResponsibilities] = useState<string[]>(['负责核心系统架构设计和开发']);
   const [qualifications, setQualifications] = useState<string[]>(['5年以上相关开发经验']);
@@ -76,7 +82,13 @@ export function ProjectForm({ onSuccess }: { onSuccess?: () => void }) {
 
   const form = useForm<ProjectFormData>({
     resolver: zodResolver(projectFormSchema),
-    defaultValues: {
+    defaultValues: project ? {
+      ...project,
+      responsibilities: JSON.parse(project.responsibilities),
+      qualifications: JSON.parse(project.qualifications),
+      benefits: project.benefits ? JSON.parse(project.benefits) : [''],
+      target_date: new Date(project.target_date).toISOString().split('T')[0],
+    } : {
       title: '高级软件工程师',
       department: '技术部',
       headcount: 1,
@@ -97,14 +109,21 @@ export function ProjectForm({ onSuccess }: { onSuccess?: () => void }) {
   const onSubmit = async (data: ProjectFormData) => {
     setLoading(true);
     try {
-      await api.createProject({
+      const data = {
         ...data,
         responsibilities: JSON.stringify(data.responsibilities),
         qualifications: JSON.stringify(data.qualifications),
         benefits: data.benefits ? JSON.stringify(data.benefits) : undefined,
-      });
-      toast.success("招聘需求创建成功");
-      form.reset();
+      };
+      
+      if (project) {
+        await api.updateProject(project.id, data);
+        toast.success("招聘需求更新成功");
+      } else {
+        await api.createProject(data);
+        toast.success("招聘需求创建成功");
+        form.reset();
+      }
       onSuccess?.();
     } catch (error) {
       toast.error("创建失败：" + (error as Error).message);
@@ -465,7 +484,7 @@ export function ProjectForm({ onSuccess }: { onSuccess?: () => void }) {
         </div>
 
         <Button type="submit" disabled={loading} className="w-full">
-          {loading ? "创建中..." : "创建招聘需求"}
+          {loading ? (project ? "更新中..." : "创建中...") : (project ? "更新招聘需求" : "创建招聘需求")}
         </Button>
       </form>
     </Form>
