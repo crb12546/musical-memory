@@ -50,15 +50,18 @@ def parse_resume(file_path: str, file_type: str) -> Dict[str, Any]:
     text = ""
     try:
         # Extract text based on file type
-        if file_type == "application/pdf":
-            text = extract_text_from_pdf(file_path)
-        elif file_type in ["application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"]:
-            text = extract_text_from_docx(file_path)
-        elif file_type == "text/plain":
-            with open(file_path, 'r', encoding='utf-8') as f:
-                text = f.read()
-        else:
-            raise ValueError(f"Unsupported file type: {file_type}")
+        try:
+            if file_type == "application/pdf":
+                text = extract_text_from_pdf(file_path)
+            elif file_type in ["application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"]:
+                text = extract_text_from_docx(file_path)
+            elif file_type == "text/plain":
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    text = f.read()
+            else:
+                raise ValueError(f"Unsupported file type: {file_type}")
+        except Exception as e:
+            raise ValueError(f"Failed to read resume file: {str(e)}")
         
         if not text.strip():
             raise ValueError("Empty resume content")
