@@ -1,6 +1,8 @@
+import * as React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "./card";
 import { Progress } from "./progress";
 import type { Project, Interview, Resume } from "../../lib/api";
+import { api } from "../../lib/api";
 import { format } from "date-fns";
 import { ArrowDownIcon, ArrowUpIcon, MinusIcon } from "lucide-react";
 
