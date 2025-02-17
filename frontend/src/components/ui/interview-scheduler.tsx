@@ -47,24 +47,6 @@ export function InterviewScheduler({
       const interviewData = {
         project_id: project.id,
         candidate_id: formData.get('candidate_id') as string,
-        scheduled_time: new Date(scheduledTime).toISOString(),
-        status,
-        feedback: feedback ? JSON.stringify({
-          type: interviewType,
-          rating: parseInt(rating || '0', 10),
-          comments: feedback
-        }) : undefined
-      };
-
-      await api.createInterview(interviewData);
-      toast.success(status === 'scheduled' ? "面试已安排" : "面试已更新");
-      e.currentTarget.reset();
-      onSuccess?.();
-
-    try {
-      const interviewData = {
-        project_id: project.id,
-        candidate_id: formData.get('candidate_id') as string,
         scheduled_time: new Date(formData.get('scheduled_time') as string).toISOString(),
         status,
         feedback: feedback ? JSON.stringify({
@@ -73,10 +55,16 @@ export function InterviewScheduler({
           comments: feedback
         }) : undefined
       };
+
       await api.createInterview(interviewData);
       toast.success(status === 'scheduled' ? "面试已安排" : "面试已更新");
       e.currentTarget.reset();
       onSuccess?.();
+    } catch (error) {
+      toast.error("操作失败：" + (error as Error).message);
+    } finally {
+      setLoading(false);
+    }
     } catch (error) {
       toast.error("操作失败：" + (error as Error).message);
     } finally {
