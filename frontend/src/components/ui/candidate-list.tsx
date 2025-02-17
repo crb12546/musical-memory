@@ -130,60 +130,7 @@ export function CandidateList({ candidates, resumes }: CandidateListProps) {
             <DialogHeader>
               <DialogTitle>简历详情</DialogTitle>
             </DialogHeader>
-            <ScrollArea className="mt-4">
-              <div className="space-y-4">
-                <div className="flex flex-wrap gap-2">
-                  {selectedResume.tags.map((tag) => (
-                    <Badge key={tag.id} variant="secondary">
-                      {tag.name}
-                    </Badge>
-                  ))}
-                </div>
-                {selectedResume.parsed_content && (
-                  <div className="space-y-6">
-                    {(() => {
-                      const content = JSON.parse(selectedResume.parsed_content);
-                      if (content.error) {
-                        return (
-                          <div className="p-4 bg-red-50 text-red-700 rounded-lg">
-                            <p className="font-medium">处理错误</p>
-                            <p className="mt-1 text-sm">{content.error}</p>
-                          </div>
-                        );
-                      }
-
-                      const sections = [
-                        { title: "工作经验", key: "experience" },
-                        { title: "教育背景", key: "education" },
-                        { title: "技能", key: "skills" },
-                        { title: "项目经历", key: "projects" }
-                      ];
-
-                      return (
-                        <div className="space-y-6">
-                          {sections.map(({ title, key }) => (
-                            <div key={key} className="space-y-2">
-                              <h3 className="text-lg font-medium text-gray-900">{title}</h3>
-                              <div className="bg-gray-50 rounded-lg p-4">
-                                {Array.isArray(content[key]) ? (
-                                  <ul className="list-disc list-inside space-y-2">
-                                    {content[key].map((item: string, index: number) => (
-                                      <li key={index} className="text-gray-600">{item}</li>
-                                    ))}
-                                  </ul>
-                                ) : (
-                                  <p className="text-gray-600">{content[key]}</p>
-                                )}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      );
-                    })()}
-                  </div>
-                )}
-              </div>
-            </ScrollArea>
+            <ResumePreview resume={selectedResume} onClose={() => setSelectedResume(null)} />
           </DialogContent>
         </Dialog>
       )}

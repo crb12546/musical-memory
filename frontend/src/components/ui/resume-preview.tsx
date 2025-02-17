@@ -1,5 +1,7 @@
+import * as React from "react";
 import { Badge } from "./badge";
 import { ScrollArea } from "./scroll-area";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./dialog";
 import type { Resume } from "../../lib/types";
 
 interface ResumePreviewProps {
