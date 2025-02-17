@@ -8,7 +8,7 @@ import { Input } from "./input";
 import { Label } from "./label";
 import { Textarea } from "./textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./select";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "./form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./form";
 import { api } from "../../lib/api";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./tooltip";
@@ -69,22 +69,23 @@ const priorityOptions = [
 
 export function ProjectForm({ onSuccess }: { onSuccess?: () => void }) {
   const [loading, setLoading] = useState(false);
-  const [responsibilities, setResponsibilities] = useState<string[]>(['']);
-  const [qualifications, setQualifications] = useState<string[]>(['']);
-  const [benefits, setBenefits] = useState<string[]>(['']);
+  const [responsibilities, setResponsibilities] = useState<string[]>(['负责核心系统架构设计和开发']);
+  const [qualifications, setQualifications] = useState<string[]>(['5年以上相关开发经验']);
+  const [benefits, setBenefits] = useState<string[]>(['具有竞争力的薪资待遇']);
+
 
   const form = useForm<ProjectFormData>({
     resolver: zodResolver(projectFormSchema),
     defaultValues: {
-      title: '',
-      department: '',
+      title: '高级软件工程师',
+      department: '技术部',
       headcount: 1,
       job_type: 'full-time',
       job_level: 'mid',
-      location: '',
+      location: '上海',
       remote_policy: 'office',
-      salary_range: '',
-      description: '',
+      salary_range: '30k-50k',
+      description: '我们正在寻找一位经验丰富的高级软件工程师加入我们的团队，负责核心系统的设计和开发。',
       responsibilities: [''],
       qualifications: [''],
       benefits: [''],
@@ -96,7 +97,12 @@ export function ProjectForm({ onSuccess }: { onSuccess?: () => void }) {
   const onSubmit = async (data: ProjectFormData) => {
     setLoading(true);
     try {
-      await api.createProject(data);
+      await api.createProject({
+        ...data,
+        responsibilities: JSON.stringify(data.responsibilities),
+        qualifications: JSON.stringify(data.qualifications),
+        benefits: data.benefits ? JSON.stringify(data.benefits) : undefined,
+      });
       toast.success("招聘需求创建成功");
       form.reset();
       onSuccess?.();
