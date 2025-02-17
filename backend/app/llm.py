@@ -42,7 +42,12 @@ def parse_resume(file_path: str, file_type: str) -> Dict[str, Any]:
         
     Returns:
         Dict containing parsed resume information or error details
+    
+    Raises:
+        ValueError: If file type is unsupported or content is empty
+        Exception: For other parsing or processing errors
     """
+    text = ""
     try:
         # Extract text based on file type
         if file_type == "application/pdf":
