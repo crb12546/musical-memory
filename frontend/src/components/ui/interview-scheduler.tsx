@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Textarea } from "./textarea";
 import { api } from "../../lib/api";
 import { toast } from "sonner";
-import type { Project, Candidate, InterviewCreate } from "../../lib/types";
+import type { Project, Candidate } from "../../lib/types";
 
 export function InterviewScheduler({
   project,
@@ -44,8 +44,25 @@ export function InterviewScheduler({
         throw new Error('已完成的面试必须提供反馈');
       }
 
+      const interviewData = {
+        project_id: project.id,
+        candidate_id: formData.get('candidate_id') as string,
+        scheduled_time: new Date(scheduledTime).toISOString(),
+        status,
+        feedback: feedback ? JSON.stringify({
+          type: interviewType,
+          rating: parseInt(rating || '0', 10),
+          comments: feedback
+        }) : undefined
+      };
+
+      await api.createInterview(interviewData);
+      toast.success(status === 'scheduled' ? "面试已安排" : "面试已更新");
+      e.currentTarget.reset();
+      onSuccess?.();
+
     try {
-      const interviewData: InterviewCreate = {
+      const interviewData = {
         project_id: project.id,
         candidate_id: formData.get('candidate_id') as string,
         scheduled_time: new Date(formData.get('scheduled_time') as string).toISOString(),
@@ -55,7 +72,7 @@ export function InterviewScheduler({
           rating: parseInt(rating || '0', 10),
           comments: feedback
         }) : undefined
-      } as InterviewCreate;
+      };
       await api.createInterview(interviewData);
       toast.success(status === 'scheduled' ? "面试已安排" : "面试已更新");
       e.currentTarget.reset();
