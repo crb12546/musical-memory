@@ -1,0 +1,19 @@
+# fly.toml app configuration file generated for musical-memory-frontend-v1 on 2025-02-17T14:26:27Z
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'musical-memory-frontend-v1'
+primary_region = 'sin'
+
+[build]
+
+[http_service]
+  internal_port = 80
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+
+[static]
+  directory = "dist"
