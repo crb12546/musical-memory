@@ -11,40 +11,6 @@ interface AnalyticsDashboardProps {
 }
 
 export function AnalyticsDashboard({ projects, interviews, resumes }: AnalyticsDashboardProps) {
-  const getProjectProgress = (project: Project) => {
-    const stages = ['open', 'in-progress', 'closed'];
-    const currentIndex = stages.indexOf(project.status);
-    return ((currentIndex + 1) / stages.length) * 100;
-  };
-
-  const getProjectStatus = (status: string) => {
-    switch (status) {
-      case 'open':
-        return '需求收集';
-      case 'in-progress':
-        return '面试中';
-      case 'closed':
-        return '已完成';
-      default:
-        return status;
-    }
-  };
-
-  const getInterviewStats = () => {
-    const total = interviews.length;
-    const completed = interviews.filter(i => i.status === 'completed').length;
-    const scheduled = interviews.filter(i => i.status === 'scheduled').length;
-    const cancelled = interviews.filter(i => i.status === 'cancelled').length;
-
-    return {
-      total,
-      completed,
-      scheduled,
-      cancelled,
-      completionRate: total > 0 ? (completed / total) * 100 : 0
-    };
-  };
-
   const calculateProcessingEfficiency = () => {
     const now = new Date();
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
