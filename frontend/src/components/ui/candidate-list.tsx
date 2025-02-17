@@ -1,12 +1,11 @@
 import { useState, useEffect } from "react";
-import { Badge } from "./badge";
 import { Button } from "./button";
 import { DataTable } from "./data-table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./dialog";
-import { ScrollArea } from "./scroll-area";
 import type { Resume, Candidate } from "../../lib/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { FileText, Mail, Phone } from "lucide-react";
+import { ResumePreview } from "./resume-preview";
 
 interface CandidateListProps {
   candidates: Candidate[];
