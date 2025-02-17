@@ -10,12 +10,6 @@ interface AnalyticsDashboardProps {
   resumes: Resume[];
 }
 
-interface TrendData {
-  value: number;
-  label: string;
-  direction: "up" | "down" | "neutral";
-}
-
 export function AnalyticsDashboard({ projects, interviews, resumes }: AnalyticsDashboardProps) {
   const getProjectProgress = (project: Project) => {
     const stages = ['open', 'in-progress', 'closed'];
@@ -50,8 +44,6 @@ export function AnalyticsDashboard({ projects, interviews, resumes }: AnalyticsD
       completionRate: total > 0 ? (completed / total) * 100 : 0
     };
   };
-
-  const interviewStats = getInterviewStats();
 
   const calculateProcessingEfficiency = () => {
     const now = new Date();

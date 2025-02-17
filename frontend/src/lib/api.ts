@@ -44,6 +44,7 @@ export interface Project {
   completed_stages?: string[];  // Array of completed stage IDs
   target_date: string;
   created_at: string;
+  updated_at?: string;
 }
 
 export interface Requirement {
