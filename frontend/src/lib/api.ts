@@ -40,6 +40,8 @@ export interface Project {
   benefits?: string;  // JSON string
   priority: string;  // low, normal, high, urgent
   status: string;  // draft, open, in-progress, on-hold, closed
+  current_stage?: string;  // sourcing, interviewing, offer, onboarding
+  completed_stages?: string[];  // Array of completed stage IDs
   target_date: string;
   created_at: string;
 }
