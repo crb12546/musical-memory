@@ -1,4 +1,3 @@
-import * as React from "react";
 import { useState } from "react";
 import { Button } from "./button";
 import { Input } from "./input";
@@ -62,9 +61,6 @@ export function InterviewScheduler({
       onSuccess?.();
     } catch (error) {
       toast.error("操作失败：" + (error as Error).message);
-    } finally {
-      setLoading(false);
-    }
     } catch (error) {
       toast.error("操作失败：" + (error as Error).message);
     } finally {
@@ -162,4 +158,5 @@ export function InterviewScheduler({
       </Button>
     </form>
   );
+}
 }
