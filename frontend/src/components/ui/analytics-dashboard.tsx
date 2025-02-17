@@ -6,12 +6,6 @@ import { api } from "../../lib/api";
 import { format } from "date-fns";
 import { ArrowDownIcon, ArrowUpIcon, MinusIcon } from "lucide-react";
 
-interface AnalyticsDashboardProps {
-  projects: Project[];
-  interviews: Interview[];
-  resumes: Resume[];
-}
-
 export function AnalyticsDashboard() {
   const [projects, setProjects] = React.useState<Project[]>([]);
   const [interviews, setInterviews] = React.useState<Interview[]>([]);
