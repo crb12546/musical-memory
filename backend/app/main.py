@@ -11,13 +11,13 @@ from uuid import UUID
 
 app = FastAPI()
 
-# Disable CORS. Do not remove this for full-stack development.
+# Configure CORS for frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows all origins
+    allow_origins=["https://slack-language-app-ky3hcdvq.devinapps.com"],
     allow_credentials=True,
-    allow_methods=["*"],  # Allows all methods
-    allow_headers=["*"],  # Allows all headers
+    allow_methods=["*"],
+    allow_headers=["*"]
 )
 
 # Create uploads directory
