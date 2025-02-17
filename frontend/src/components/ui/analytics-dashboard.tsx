@@ -10,7 +10,32 @@ interface AnalyticsDashboardProps {
   resumes: Resume[];
 }
 
-export function AnalyticsDashboard({ projects, interviews, resumes }: AnalyticsDashboardProps) {
+export function AnalyticsDashboard() {
+  const [projects, setProjects] = React.useState<Project[]>([]);
+  const [interviews, setInterviews] = React.useState<Interview[]>([]);
+  const [resumes, setResumes] = React.useState<Resume[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [projectsData, interviewsData, resumesData] = await Promise.all([
+          api.getProjects(),
+          api.getInterviews(),
+          api.getResumes()
+        ]);
+        setProjects(projectsData);
+        setInterviews(interviewsData);
+        setResumes(resumesData);
+      } catch (err) {
+        setError((err as Error).message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
   const getProjectStatus = (status: string) => {
     switch (status) {
       case 'open':
@@ -115,6 +140,23 @@ export function AnalyticsDashboard({ projects, interviews, resumes }: AnalyticsD
   const efficiency = calculateProcessingEfficiency();
   const conversion = calculateInterviewConversion();
   const cycle = calculateRecruitmentCycle();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-4 border border-red-200 rounded-md bg-red-50 text-red-700">
+        <h3 className="text-lg font-medium mb-2">加载失败</h3>
+        <p>{error}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
