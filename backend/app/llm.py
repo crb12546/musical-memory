@@ -48,6 +48,8 @@ def parse_resume(file_path: str, file_type: str) -> Dict[str, Any]:
         Exception: For other parsing or processing errors
     """
     text = ""
+    parsed_content = None
+    
     try:
         # Extract text based on file type
         try:
