@@ -5,7 +5,9 @@ export interface Candidate {
   name: string;
   email: string;
   phone: string;
+  status: string;
   created_at: string;
+  updated_at: string;
 }
 
 export interface Tag {
@@ -21,6 +23,7 @@ export interface Resume {
   file_type: string;
   parsed_content: string | null;
   created_at: string;
+  updated_at: string;
   tags: Tag[];
 }
 
@@ -42,6 +45,7 @@ export interface Project {
   status: string;  // draft, open, in-progress, on-hold, closed
   target_date: string;
   created_at: string;
+  updated_at: string;
 }
 
 export interface Requirement {
@@ -58,12 +62,15 @@ export interface Interview {
   project_id: string;
   candidate_id: string;
   scheduled_time: string;
+  interview_type: string;
   status: string;
+  rating?: number;
   feedback?: string;
   created_at: string;
+  updated_at: string;
 }
 
-export type InterviewCreate = Omit<Interview, 'id' | 'created_at'>
+export type InterviewCreate = Omit<Interview, 'id' | 'created_at' | 'updated_at'>
 
 export const api = {
   // Candidates

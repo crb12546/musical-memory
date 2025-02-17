@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Textarea } from "./textarea";
 import { api } from "../../lib/api";
 import { toast } from "sonner";
-import type { Project, Candidate } from "../../lib/types";
+import type { Project, Candidate, InterviewCreate } from "../../lib/api";
 
 export function InterviewScheduler({
   project,
@@ -28,7 +28,7 @@ export function InterviewScheduler({
       const status = formData.get('status') as string || 'scheduled';
       const feedback = formData.get('feedback') as string;
       const rating = formData.get('rating') as string;
-      const interviewType = formData.get('interview_type') as string;
+      const interviewType = formData.get('interview_type') as string || 'technical';
       const scheduledTime = formData.get('scheduled_time') as string;
 
       if (!scheduledTime) {
@@ -43,16 +43,18 @@ export function InterviewScheduler({
         throw new Error('已完成的面试必须提供反馈');
       }
 
-      const interviewData = {
+      const interviewData: InterviewCreate = {
         project_id: project.id,
         candidate_id: formData.get('candidate_id') as string,
         scheduled_time: new Date(formData.get('scheduled_time') as string).toISOString(),
+        interview_type: interviewType,
         status,
         feedback: feedback ? JSON.stringify({
           type: interviewType,
           rating: parseInt(rating || '0', 10),
           comments: feedback
-        }) : undefined
+        }) : undefined,
+        rating: rating ? parseInt(rating, 10) : undefined
       };
 
       await api.createInterview(interviewData);

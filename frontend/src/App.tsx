@@ -11,7 +11,7 @@ import { SidebarProvider, Sidebar, SidebarMenu } from './components/ui/sidebar'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './components/ui/dialog'
 import { Badge } from './components/ui/badge'
 import { api } from './lib/api'
-import type { Candidate, Project, Interview, Resume, Tag } from './lib/types'
+import type { Candidate, Project, Interview, Resume, Tag } from './lib/api'
 import { cn } from './lib/utils'
 import { useState, useEffect } from 'react'
 

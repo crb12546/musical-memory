@@ -124,6 +124,7 @@ export function ProjectForm({
         responsibilities: JSON.stringify(formData.responsibilities),
         qualifications: JSON.stringify(formData.qualifications),
         benefits: formData.benefits ? JSON.stringify(formData.benefits) : undefined,
+        updated_at: new Date().toISOString(),
       };
       
       if (project) {
