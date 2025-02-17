@@ -4,10 +4,9 @@ import type { Resume } from "../../lib/types";
 
 interface ResumePreviewProps {
   resume: Resume;
-  onClose: () => void;
 }
 
-export function ResumePreview({ resume, onClose }: ResumePreviewProps) {
+export function ResumePreview({ resume }: ResumePreviewProps) {
   const renderParsedContent = () => {
     if (!resume.parsed_content) return null;
 

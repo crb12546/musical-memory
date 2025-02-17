@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "./button";
+import { Badge } from "./badge";
 import { DataTable } from "./data-table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./dialog";
 import type { Resume, Candidate } from "../../lib/types";
