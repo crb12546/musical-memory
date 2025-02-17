@@ -61,8 +61,6 @@ export function InterviewScheduler({
       onSuccess?.();
     } catch (error) {
       toast.error("操作失败：" + (error as Error).message);
-    } catch (error) {
-      toast.error("操作失败：" + (error as Error).message);
     } finally {
       setLoading(false);
     }
@@ -158,5 +156,4 @@ export function InterviewScheduler({
       </Button>
     </form>
   );
-}
 }
