@@ -12,10 +12,16 @@ load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 def extract_text_from_docx(file_path: str) -> str:
-    doc = docx.Document(file_path)
-    return "\n".join([paragraph.text for paragraph in doc.paragraphs])
+    """Extract text content from a DOCX file."""
+    try:
+        doc = docx.Document(file_path)
+        return "\n".join([paragraph.text for paragraph in doc.paragraphs])
+    except Exception as e:
+        print(f"Error extracting text from DOCX: {str(e)}")
+        raise ValueError(f"Failed to extract text from DOCX: {str(e)}")
 
 def extract_text_from_pdf(file_path: str) -> str:
+    """Extract text content from a PDF file."""
     try:
         reader = PdfReader(file_path)
         text = ""
@@ -23,8 +29,8 @@ def extract_text_from_pdf(file_path: str) -> str:
             text += page.extract_text() + "\n"
         return text.strip()
     except Exception as e:
-        # For testing, return sample text if PDF parsing fails
-        return "Software Engineer with 5 years of experience in Python, FastAPI, and React. Masters in Computer Science."
+        print(f"Error extracting text from PDF: {str(e)}")
+        raise ValueError(f"Failed to extract text from PDF: {str(e)}")
 
 def parse_resume(file_path: str, file_type: str) -> Dict:
     try:
