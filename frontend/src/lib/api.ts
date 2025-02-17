@@ -63,6 +63,8 @@ export interface Interview {
   created_at: string;
 }
 
+export type InterviewCreate = Omit<Interview, 'id' | 'created_at'>
+
 export const api = {
   // Candidates
   async createCandidate(data: Omit<Candidate, 'id' | 'created_at'>) {
@@ -154,7 +156,7 @@ export const api = {
     return response.json();
   },
 
-  async createInterview(data: Omit<Interview, 'id' | 'created_at' | 'feedback'>): Promise<Interview> {
+  async createInterview(data: InterviewCreate): Promise<Interview> {
     const response = await fetch(`${API_URL}/api/interviews/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
