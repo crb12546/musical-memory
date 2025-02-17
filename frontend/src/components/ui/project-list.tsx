@@ -236,24 +236,25 @@ export function ProjectList({
   });
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="flex flex-col md:flex-row items-center gap-6 mb-8 bg-white p-6 rounded-lg shadow-sm">
-        <Input
-          placeholder="搜索职位名称..."
-          value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("title")?.setFilterValue(event.target.value)
-          }
-          className="w-full md:w-64"
-        />
-        <Input
-          placeholder="搜索部门..."
-          value={(table.getColumn("department")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("department")?.setFilterValue(event.target.value)
-          }
-          className="w-full md:w-64"
-        />
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+      <div className="flex flex-col md:flex-row items-start md:items-center gap-4 mb-6 bg-white p-4 sm:p-6 rounded-lg shadow-sm">
+        <div className="w-full md:w-auto space-y-4 md:space-y-0 md:flex md:gap-4">
+          <Input
+            placeholder="搜索职位名称..."
+            value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
+            onChange={(event) =>
+              table.getColumn("title")?.setFilterValue(event.target.value)
+            }
+            className="w-full md:w-64"
+          />
+          <Input
+            placeholder="搜索部门..."
+            value={(table.getColumn("department")?.getFilterValue() as string) ?? ""}
+            onChange={(event) =>
+              table.getColumn("department")?.setFilterValue(event.target.value)
+            }
+            className="w-full md:w-64"
+          />
         <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="选择状态" />
@@ -279,8 +280,9 @@ export function ProjectList({
           </SelectContent>
         </Select>
       </div>
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
-        <Table>
+      <div className="bg-white rounded-lg shadow-md overflow-x-auto">
+        <div className="min-w-[800px]">
+          <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id} className="border-b border-gray-200">
@@ -323,13 +325,14 @@ export function ProjectList({
                 </TableRow>
               )}
             </TableBody>
-        </Table>
+          </Table>
+        </div>
       </div>
-      <div className="mt-6 flex items-center justify-between px-4">
-        <div className="text-sm text-gray-500">
+      <div className="mt-6 flex flex-col sm:flex-row items-center justify-between px-4 gap-4">
+        <div className="text-sm text-gray-500 order-2 sm:order-1">
           共 {table.getFilteredRowModel().rows.length} 条记录
         </div>
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-4 order-1 sm:order-2">
           <Button
             variant="outline"
             size="sm"
@@ -350,6 +353,7 @@ export function ProjectList({
           </Button>
         </div>
       </div>
+    </div>
     </div>
   );
 }
