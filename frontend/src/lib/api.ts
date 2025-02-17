@@ -63,6 +63,8 @@ export interface Interview {
   created_at: string;
 }
 
+export type InterviewCreate = Omit<Interview, 'id' | 'created_at'>
+
 export const api = {
   // Candidates
   async createCandidate(data: Omit<Candidate, 'id' | 'created_at'>) {
@@ -121,6 +123,29 @@ export const api = {
     return response.json();
   },
 
+  async updateProject(id: string, data: Partial<Project>): Promise<Project> {
+    const response = await fetch(`${API_URL}/api/projects/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || `更新失败: HTTP错误 ${response.status}`);
+    }
+    return response.json();
+  },
+
+  async deleteProject(id: string): Promise<void> {
+    const response = await fetch(`${API_URL}/api/projects/${id}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || `删除失败: HTTP错误 ${response.status}`);
+    }
+  },
+
   async createRequirement(data: Omit<Requirement, 'id' | 'created_at' | 'tags'>): Promise<Requirement> {
     const response = await fetch(`${API_URL}/api/requirements/`, {
       method: 'POST',
@@ -131,7 +156,7 @@ export const api = {
     return response.json();
   },
 
-  async createInterview(data: Omit<Interview, 'id' | 'created_at' | 'feedback'>): Promise<Interview> {
+  async createInterview(data: InterviewCreate): Promise<Interview> {
     const response = await fetch(`${API_URL}/api/interviews/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

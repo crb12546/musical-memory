@@ -67,6 +67,9 @@ class ProjectBase(BaseModel):
 class ProjectCreate(ProjectBase):
     pass
 
+class ProjectUpdate(ProjectBase):
+    status: Optional[str] = None
+    
 class Project(ProjectBase):
     id: UUID
     status: str  # draft, open, in-progress, on-hold, closed

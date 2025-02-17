@@ -14,6 +14,8 @@ import {
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import { Badge } from "./badge";
 import { Button } from "./button";
+import { api } from "../../lib/api";
+import { toast } from "sonner";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -38,7 +40,7 @@ import {
   TableHeader,
   TableRow,
 } from "./table";
-import { ProjectDetail } from "./project-detail";
+// Removed ProjectDetail import as it's replaced by edit functionality
 import type { Project } from "../../lib/api";
 import { format } from "date-fns";
 
@@ -91,11 +93,17 @@ const getPriorityLabel = (priority: string) => {
   }
 };
 
-export function ProjectList({ projects }: { projects: Project[] }) {
+export function ProjectList({ 
+  projects,
+  onProjectSelect
+}: { 
+  projects: Project[];
+  onProjectSelect?: (project: Project) => void;
+}) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
-  const [selectedProject, setSelectedProject] = React.useState<Project | null>(null);
+  // Removed selectedProject state as it's handled by parent component
   const [statusFilter, setStatusFilter] = React.useState("all");
   const [priorityFilter, setPriorityFilter] = React.useState("all");
 
@@ -172,12 +180,37 @@ export function ProjectList({ projects }: { projects: Project[] }) {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>操作</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => setSelectedProject(project)}>
-                查看详情
+              <DropdownMenuItem onClick={() => onProjectSelect?.(project)}>
+                编辑项目
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>编辑</DropdownMenuItem>
-              <DropdownMenuItem>删除</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => {
+                const updatedData = { ...project, status: project.status === 'open' ? 'closed' : 'open' };
+                api.updateProject(project.id, updatedData)
+                  .then(() => {
+                    toast.success('项目状态已更新');
+                    window.location.reload();
+                  })
+                  .catch((error: Error) => {
+                    toast.error('更新失败: ' + error.message);
+                  });
+              }}>
+                {project.status === 'open' ? '关闭项目' : '重新开启'}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => {
+                if (window.confirm('确定要删除这个项目吗？此操作无法撤销。')) {
+                  api.deleteProject(project.id)
+                    .then(() => {
+                      toast.success('项目已删除');
+                      window.location.reload();
+                    })
+                    .catch((error: Error) => {
+                      toast.error('删除失败: ' + error.message);
+                    });
+                }
+              }}>
+                删除
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         )
@@ -203,15 +236,15 @@ export function ProjectList({ projects }: { projects: Project[] }) {
   });
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col md:flex-row items-center gap-4">
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="flex flex-col md:flex-row items-center gap-6 mb-8 bg-white p-6 rounded-lg shadow-sm">
         <Input
           placeholder="搜索职位名称..."
           value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
             table.getColumn("title")?.setFilterValue(event.target.value)
           }
-          className="max-w-sm"
+          className="w-full md:w-64"
         />
         <Input
           placeholder="搜索部门..."
@@ -219,7 +252,7 @@ export function ProjectList({ projects }: { projects: Project[] }) {
           onChange={(event) =>
             table.getColumn("department")?.setFilterValue(event.target.value)
           }
-          className="max-w-sm"
+          className="w-full md:w-64"
         />
         <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="w-[180px]">
@@ -246,14 +279,14 @@ export function ProjectList({ projects }: { projects: Project[] }) {
           </SelectContent>
         </Select>
       </div>
-      <div className="rounded-md border">
+      <div className="bg-white rounded-lg shadow-md overflow-hidden">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <TableRow key={headerGroup.id} className="border-b border-gray-200">
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead key={header.id} className="bg-gray-50 px-6 py-4">
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -272,9 +305,10 @@ export function ProjectList({ projects }: { projects: Project[] }) {
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  className="hover:bg-gray-50 transition-colors"
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className="px-6 py-4">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
@@ -284,7 +318,7 @@ export function ProjectList({ projects }: { projects: Project[] }) {
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-24 text-center"
+                  className="h-32 text-center text-gray-500"
                 >
                   暂无数据
                 </TableCell>
@@ -293,31 +327,33 @@ export function ProjectList({ projects }: { projects: Project[] }) {
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end space-x-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          上一页
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
-          下一页
-        </Button>
+      <div className="mt-6 flex items-center justify-between px-4">
+        <div className="text-sm text-gray-500">
+          共 {table.getFilteredRowModel().rows.length} 条记录
+        </div>
+        <div className="flex items-center space-x-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+            className="min-w-[80px]"
+          >
+            上一页
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+            className="min-w-[80px]"
+          >
+            下一页
+          </Button>
+        </div>
       </div>
 
-      {selectedProject && (
-        <ProjectDetail
-          project={selectedProject}
-          onClose={() => setSelectedProject(null)}
-        />
-      )}
+      {/* Project detail view removed as it's replaced by edit functionality */}
     </div>
   );
 }

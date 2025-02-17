@@ -11,13 +11,17 @@ from uuid import UUID
 
 app = FastAPI()
 
-# Disable CORS. Do not remove this for full-stack development.
+# Configure CORS for frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows all origins
+    allow_origins=[
+        "https://slack-language-app-ky3hcdvq.devinapps.com",
+        "http://localhost:5173"  # For local development
+    ],
     allow_credentials=True,
-    allow_methods=["*"],  # Allows all methods
-    allow_headers=["*"],  # Allows all headers
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["*"]
 )
 
 # Create uploads directory
@@ -54,6 +58,26 @@ def create_project(project: schemas.ProjectCreate, db: Session = Depends(databas
 @app.get("/api/projects/", response_model=List[schemas.Project])
 def list_projects(db: Session = Depends(database.get_db)):
     return db.query(models.Project).all()
+
+@app.put("/api/projects/{project_id}", response_model=schemas.Project)
+def update_project(project_id: UUID, project: schemas.ProjectUpdate, db: Session = Depends(database.get_db)):
+    db_project = db.query(models.Project).filter(models.Project.id == project_id).first()
+    if not db_project:
+        raise HTTPException(status_code=404, detail="项目不存在")
+    for key, value in project.dict(exclude_unset=True).items():
+        setattr(db_project, key, value)
+    db.commit()
+    db.refresh(db_project)
+    return db_project
+
+@app.delete("/api/projects/{project_id}")
+def delete_project(project_id: UUID, db: Session = Depends(database.get_db)):
+    db_project = db.query(models.Project).filter(models.Project.id == project_id).first()
+    if not db_project:
+        raise HTTPException(status_code=404, detail="项目不存在")
+    db.delete(db_project)
+    db.commit()
+    return {"status": "success"}
 
 # Requirement endpoints
 @app.post("/api/requirements/", response_model=schemas.Requirement)
