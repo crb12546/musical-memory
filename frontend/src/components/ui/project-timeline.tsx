@@ -13,7 +13,7 @@ interface TimelineStageProps {
   isLast?: boolean;
 }
 
-function TimelineStage({ stage, isActive, isComplete, isLast }: TimelineStageProps) {
+const TimelineStage: React.FC<TimelineStageProps> = ({ stage, isActive, isComplete, isLast }) => {
   return (
     <div className="relative flex items-center">
       <div className={cn(
@@ -53,7 +53,7 @@ function TimelineStage({ stage, isActive, isComplete, isLast }: TimelineStagePro
   );
 }
 
-export function ProjectTimeline({ project }: { project: Project }) {
+export const ProjectTimeline: React.FC<{ project: Project }> = ({ project }) => {
   const stages = [
     { id: 'sourcing', label: '简历筛选' },
     { id: 'interviewing', label: '面试中' },
@@ -70,7 +70,7 @@ export function ProjectTimeline({ project }: { project: Project }) {
             key={stage.id}
             stage={stage}
             isActive={project.current_stage === stage.id}
-            isComplete={project.completed_stages?.includes(stage.id)}
+            isComplete={project.completed_stages ? project.completed_stages.includes(stage.id) : false}
             isLast={index === stages.length - 1}
           />
         ))}
