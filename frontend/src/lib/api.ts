@@ -1,0 +1,149 @@
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
+export interface Candidate {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  created_at: string;
+}
+
+export interface Tag {
+  id: string;
+  name: string;
+  category: string;
+}
+
+export interface Resume {
+  id: string;
+  candidate_id: string;
+  file_path: string;
+  file_type: string;
+  parsed_content: string | null;
+  created_at: string;
+  tags: Tag[];
+}
+
+export interface Project {
+  id: string;
+  title: string;
+  department: string;
+  headcount: number;
+  job_type: string;  // full-time, part-time, contract
+  job_level: string;  // entry, mid, senior, lead
+  location: string;
+  remote_policy: string;  // office, hybrid, remote
+  salary_range?: string;
+  description: string;
+  responsibilities: string;  // JSON string
+  qualifications: string;  // JSON string
+  benefits?: string;  // JSON string
+  priority: string;  // low, normal, high, urgent
+  status: string;  // draft, open, in-progress, on-hold, closed
+  target_date: string;
+  created_at: string;
+}
+
+export interface Requirement {
+  id: string;
+  project_id: string;
+  description: string;
+  is_required: boolean;
+  created_at: string;
+  tags: Tag[];
+}
+
+export interface Interview {
+  id: string;
+  project_id: string;
+  candidate_id: string;
+  scheduled_time: string;
+  status: string;
+  feedback?: string;
+  created_at: string;
+}
+
+export const api = {
+  // Candidates
+  async createCandidate(data: Omit<Candidate, 'id' | 'created_at'>) {
+    const response = await fetch(`${API_URL}/api/candidates/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    return response.json();
+  },
+
+  async getCandidates(): Promise<Candidate[]> {
+    const response = await fetch(`${API_URL}/api/candidates/`);
+    return response.json();
+  },
+
+  // Resumes
+  async uploadResume(file: File, candidateId: string): Promise<Resume> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('candidate_id', candidateId);
+
+    const response = await fetch(`${API_URL}/api/resumes/`, {
+      method: 'POST',
+      body: formData,
+    });
+    return response.json();
+  },
+
+  async getResumes(): Promise<Resume[]> {
+    const response = await fetch(`${API_URL}/api/resumes/`);
+    return response.json();
+  },
+
+  // Tags
+  async getTags(): Promise<Tag[]> {
+    const response = await fetch(`${API_URL}/api/tags/`);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    return response.json();
+  },
+
+  async createProject(data: Omit<Project, 'id' | 'status' | 'created_at'>): Promise<Project> {
+    const response = await fetch(`${API_URL}/api/projects/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    return response.json();
+  },
+  
+  async getProjects(): Promise<Project[]> {
+    const response = await fetch(`${API_URL}/api/projects/`);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    return response.json();
+  },
+
+  async createRequirement(data: Omit<Requirement, 'id' | 'created_at' | 'tags'>): Promise<Requirement> {
+    const response = await fetch(`${API_URL}/api/requirements/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    return response.json();
+  },
+
+  async createInterview(data: Omit<Interview, 'id' | 'created_at' | 'feedback'>): Promise<Interview> {
+    const response = await fetch(`${API_URL}/api/interviews/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    return response.json();
+  },
+
+  async getInterviews(): Promise<Interview[]> {
+    const response = await fetch(`${API_URL}/api/interviews/`);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    return response.json();
+  }
+};
