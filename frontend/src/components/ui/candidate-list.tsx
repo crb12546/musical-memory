@@ -130,7 +130,7 @@ export function CandidateList({ candidates, resumes }: CandidateListProps) {
             <DialogHeader>
               <DialogTitle>简历详情</DialogTitle>
             </DialogHeader>
-            <ResumePreview resume={selectedResume} onClose={() => setSelectedResume(null)} />
+            <ResumePreview resume={selectedResume} />
           </DialogContent>
         </Dialog>
       )}
