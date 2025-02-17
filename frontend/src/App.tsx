@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Toaster } from 'sonner'
 import { Button } from './components/ui/button'
-import { Card } from './components/ui/card'
 import { ProjectList } from './components/ui/project-list'
 import { ProjectForm } from './components/ui/project-form'
 import { ResumeUpload } from './components/ui/resume-upload'
