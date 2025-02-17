@@ -9,8 +9,10 @@ import { InterviewScheduler } from './components/ui/interview-scheduler'
 import { AnalyticsDashboard } from './components/ui/analytics-dashboard'
 import { SidebarProvider, Sidebar, SidebarMenu } from './components/ui/sidebar'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './components/ui/dialog'
+import { Badge } from './components/ui/badge'
 import { api } from './lib/api'
 import type { Candidate, Project, Interview, Resume } from './lib/types'
+import { cn } from './lib/utils'
 import { useState, useEffect } from 'react'
 
 export default function App() {
@@ -38,48 +40,102 @@ export default function App() {
   }, [])
 
   const renderContent = () => {
+    const Section = ({ children, className }: { children: React.ReactNode, className?: string }) => (
+      <div className={cn("bg-white rounded-lg p-6 shadow-sm", className)}>
+        {children}
+      </div>
+    );
+
+    const Title = ({ children }: { children: React.ReactNode }) => (
+      <h2 className="text-xl font-semibold mb-4">{children}</h2>
+    );
+
     switch (activeSection) {
       case "project-list":
         return (
-          <>
-            <ProjectList 
-              projects={projects}
-              onProjectSelect={(project) => setSelectedProject(project)}
-            />
-            <div className="mt-8">
-              <h2 className="text-xl font-semibold mb-4">数据分析</h2>
+          <div className="space-y-6">
+            <Section>
+              <Title>招聘需求列表</Title>
+              <ProjectList 
+                projects={projects}
+                onProjectSelect={(project) => setSelectedProject(project)}
+              />
+            </Section>
+            <Section>
+              <Title>数据分析</Title>
               <AnalyticsDashboard projects={projects} interviews={interviews} />
-            </div>
-          </>
+            </Section>
+          </div>
         )
       case "project-create":
         return (
-          <div className="bg-white rounded-lg p-6">
-            <h2 className="text-xl font-semibold mb-4">创建招聘需求</h2>
+          <Section>
+            <Title>创建招聘需求</Title>
             <ProjectForm onSuccess={() => api.getProjects().then(setProjects)} />
-          </div>
+          </Section>
         )
       case "resume-upload":
         return (
-          <div className="bg-white rounded-lg p-6">
-            <h2 className="text-xl font-semibold mb-4">简历录入</h2>
+          <Section>
+            <Title>简历录入</Title>
             <ResumeUpload 
               candidates={candidates} 
               onSuccess={() => api.getResumes().then(setResumes)} 
             />
-          </div>
+          </Section>
         )
       case "resume-view":
         return (
-          <div className="bg-white rounded-lg p-6">
-            <h2 className="text-xl font-semibold mb-4">简历查看</h2>
+          <Section>
+            <Title>简历查看</Title>
             <CandidateList candidates={candidates} resumes={resumes} />
-          </div>
+          </Section>
+        )
+      case "talent-matching":
+        return (
+          <Section>
+            <Title>人才匹配</Title>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <h3 className="font-medium">招聘需求</h3>
+                <div className="grid gap-4">
+                  {projects.map(project => (
+                    <div 
+                      key={project.id}
+                      className="p-4 border rounded-lg hover:border-blue-500 cursor-pointer"
+                      onClick={() => setSelectedProject(project)}
+                    >
+                      <h4 className="font-medium">{project.title}</h4>
+                      <p className="text-sm text-gray-500">{project.department}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="space-y-4">
+                <h3 className="font-medium">匹配候选人</h3>
+                {selectedProject ? (
+                  <CandidateList 
+                    candidates={candidates.filter(c => {
+                      const resume = resumes.find(r => r.candidate_id === c.id);
+                      return resume?.tags.some(tag => 
+                        selectedProject.qualifications.toLowerCase().includes(tag.name.toLowerCase())
+                      );
+                    })}
+                    resumes={resumes}
+                  />
+                ) : (
+                  <div className="text-gray-500 text-center p-8">
+                    请选择一个招聘需求以查看匹配的候选人
+                  </div>
+                )}
+              </div>
+            </div>
+          </Section>
         )
       case "interview-schedule":
         return (
-          <div className="bg-white rounded-lg p-6">
-            <h2 className="text-xl font-semibold mb-4">面试安排</h2>
+          <Section>
+            <Title>面试安排</Title>
             {selectedProject ? (
               <InterviewScheduler 
                 project={selectedProject}
@@ -95,7 +151,7 @@ export default function App() {
                   {projects.map(project => (
                     <div 
                       key={project.id}
-                      className="p-4 border rounded-lg hover:border-blue-500 cursor-pointer"
+                      className="p-4 border rounded-lg hover:border-blue-500 cursor-pointer transition-colors"
                       onClick={() => setSelectedProject(project)}
                     >
                       <h3 className="font-medium">{project.title}</h3>
@@ -105,7 +161,41 @@ export default function App() {
                 </div>
               </div>
             )}
-          </div>
+          </Section>
+        )
+      case "interview-feedback":
+        return (
+          <Section>
+            <Title>面试反馈</Title>
+            <div className="space-y-6">
+              {interviews.map(interview => {
+                const candidate = candidates.find(c => c.id === interview.candidate_id);
+                const project = projects.find(p => p.id === interview.project_id);
+                return (
+                  <div key={interview.id} className="border rounded-lg p-4 space-y-4">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="font-medium">{candidate?.name}</h3>
+                        <p className="text-sm text-gray-500">{project?.title}</p>
+                      </div>
+                      <Badge className={cn(
+                        interview.status === 'scheduled' && 'bg-blue-100 text-blue-700',
+                        interview.status === 'completed' && 'bg-green-100 text-green-700',
+                        interview.status === 'cancelled' && 'bg-red-100 text-red-700'
+                      )}>
+                        {interview.status}
+                      </Badge>
+                    </div>
+                    {interview.feedback && (
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <p className="text-sm text-gray-700">{interview.feedback}</p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </Section>
         )
       default:
         return <div>404 - 页面不存在</div>
