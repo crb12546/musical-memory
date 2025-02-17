@@ -230,15 +230,15 @@ export function ProjectList({ projects }: { projects: Project[] }) {
   });
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col md:flex-row items-center gap-4">
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="flex flex-col md:flex-row items-center gap-6 mb-8 bg-white p-6 rounded-lg shadow-sm">
         <Input
           placeholder="搜索职位名称..."
           value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
             table.getColumn("title")?.setFilterValue(event.target.value)
           }
-          className="max-w-sm"
+          className="w-full md:w-64"
         />
         <Input
           placeholder="搜索部门..."
@@ -246,7 +246,7 @@ export function ProjectList({ projects }: { projects: Project[] }) {
           onChange={(event) =>
             table.getColumn("department")?.setFilterValue(event.target.value)
           }
-          className="max-w-sm"
+          className="w-full md:w-64"
         />
         <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="w-[180px]">
@@ -273,14 +273,14 @@ export function ProjectList({ projects }: { projects: Project[] }) {
           </SelectContent>
         </Select>
       </div>
-      <div className="rounded-md border">
+      <div className="bg-white rounded-lg shadow-md overflow-hidden">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <TableRow key={headerGroup.id} className="border-b border-gray-200">
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead key={header.id} className="bg-gray-50 px-6 py-4">
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -299,9 +299,10 @@ export function ProjectList({ projects }: { projects: Project[] }) {
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  className="hover:bg-gray-50 transition-colors"
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className="px-6 py-4">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
@@ -311,7 +312,7 @@ export function ProjectList({ projects }: { projects: Project[] }) {
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-24 text-center"
+                  className="h-32 text-center text-gray-500"
                 >
                   暂无数据
                 </TableCell>
@@ -320,23 +321,30 @@ export function ProjectList({ projects }: { projects: Project[] }) {
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end space-x-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          上一页
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
-          下一页
-        </Button>
+      <div className="mt-6 flex items-center justify-between px-4">
+        <div className="text-sm text-gray-500">
+          共 {table.getFilteredRowModel().rows.length} 条记录
+        </div>
+        <div className="flex items-center space-x-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+            className="min-w-[80px]"
+          >
+            上一页
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+            className="min-w-[80px]"
+          >
+            下一页
+          </Button>
+        </div>
       </div>
 
       {selectedProject && (
