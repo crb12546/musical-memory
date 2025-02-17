@@ -26,7 +26,8 @@ def upgrade():
 
     # Add new columns to projects table
     op.add_column('projects', sa.Column('current_stage', sa.String(), nullable=True))
-    op.add_column('projects', sa.Column('completed_stages', postgresql.ARRAY(sa.String()), nullable=True))
+    # Store completed stages as JSON string in SQLite
+    op.add_column('projects', sa.Column('completed_stages', sa.String(), nullable=True))
     op.add_column('projects', sa.Column('updated_at', sa.DateTime(), nullable=True))
 
     # Add new columns to resumes table

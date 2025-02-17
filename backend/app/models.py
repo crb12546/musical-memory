@@ -1,9 +1,11 @@
-from sqlalchemy import Column, String, DateTime, ForeignKey, Table, Integer, Boolean, ARRAY
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Column, String, DateTime, ForeignKey, Table, Integer, Boolean, Float
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 import uuid
 from datetime import datetime
+
+def generate_uuid():
+    return str(uuid.uuid4())
 
 Base = declarative_base()
 
@@ -11,21 +13,21 @@ Base = declarative_base()
 resume_tags = Table(
     'resume_tags',
     Base.metadata,
-    Column('resume_id', UUID(as_uuid=True), ForeignKey('resumes.id')),
-    Column('tag_id', UUID(as_uuid=True), ForeignKey('tags.id'))
+    Column('resume_id', String, ForeignKey('resumes.id')),
+    Column('tag_id', String, ForeignKey('tags.id'))
 )
 
 requirement_tags = Table(
     'requirement_tags',
     Base.metadata,
-    Column('requirement_id', UUID(as_uuid=True), ForeignKey('requirements.id')),
-    Column('tag_id', UUID(as_uuid=True), ForeignKey('tags.id'))
+    Column('requirement_id', String, ForeignKey('requirements.id')),
+    Column('tag_id', String, ForeignKey('tags.id'))
 )
 
 class Candidate(Base):
     __tablename__ = 'candidates'
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(String, primary_key=True, default=generate_uuid)
     name = Column(String, nullable=False)
     email = Column(String, nullable=False)
     phone = Column(String)
@@ -37,8 +39,8 @@ class Candidate(Base):
 class Resume(Base):
     __tablename__ = 'resumes'
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    candidate_id = Column(UUID(as_uuid=True), ForeignKey('candidates.id'))
+    id = Column(String, primary_key=True, default=generate_uuid)
+    candidate_id = Column(String, ForeignKey('candidates.id'))
     file_path = Column(String, nullable=False)
     file_type = Column(String, nullable=False)
     parsed_content = Column(String)
@@ -50,7 +52,7 @@ class Resume(Base):
 class Tag(Base):
     __tablename__ = 'tags'
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(String, primary_key=True, default=generate_uuid)
     name = Column(String, nullable=False)
     category = Column(String, nullable=False)
     
@@ -60,7 +62,10 @@ class Tag(Base):
 class Project(Base):
     __tablename__ = 'projects'
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    current_stage = Column(String)  # sourcing, interviewing, offer, onboarding
+    completed_stages = Column(String)  # JSON array of completed stage IDs
+    
+    id = Column(String, primary_key=True, default=generate_uuid)
     title = Column(String, nullable=False)
     department = Column(String, nullable=False)
     headcount = Column(Integer, nullable=False)
@@ -84,8 +89,8 @@ class Project(Base):
 class Requirement(Base):
     __tablename__ = 'requirements'
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    project_id = Column(UUID(as_uuid=True), ForeignKey('projects.id'))
+    id = Column(String, primary_key=True, default=generate_uuid)
+    project_id = Column(String, ForeignKey('projects.id'))
     description = Column(String, nullable=False)
     is_required = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -96,13 +101,19 @@ class Requirement(Base):
 class Interview(Base):
     __tablename__ = 'interviews'
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    project_id = Column(UUID(as_uuid=True), ForeignKey('projects.id'))
-    candidate_id = Column(UUID(as_uuid=True), ForeignKey('candidates.id'))
+    id = Column(String, primary_key=True, default=generate_uuid)
+    project_id = Column(String, ForeignKey('projects.id'))
+    candidate_id = Column(String, ForeignKey('candidates.id'))
     scheduled_time = Column(DateTime, nullable=False)
     status = Column(String, nullable=False)  # scheduled, completed, cancelled
-    feedback = Column(String)
+    interview_type = Column(String)  # technical, behavioral, culture
+    technical_score = Column(Integer)
+    communication_score = Column(Integer)
+    culture_fit_score = Column(Integer)
+    overall_rating = Column(Float)
+    feedback = Column(String)  # JSON string for detailed feedback
     created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, onupdate=datetime.utcnow)
     
     project = relationship("Project", back_populates="interviews")
     candidate = relationship("Candidate", back_populates="interviews")

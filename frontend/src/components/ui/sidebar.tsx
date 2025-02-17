@@ -503,7 +503,7 @@ const SidebarMenu = React.forwardRef<
         <SidebarMenuButton
           onClick={() => onItemSelect?.(item.id)}
           data-state={activeItem === item.id ? "active" : "inactive"}
-          className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700"
+          className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-left text-gray-600 hover:bg-gray-50 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 data-[state=active]:font-medium transition-colors"
         >
           {item.icon}
           <span>{item.label}</span>
@@ -516,7 +516,7 @@ const SidebarMenu = React.forwardRef<
                 size="sm"
                 onClick={() => onItemSelect?.(subItem.id)}
                 data-state={activeItem === subItem.id ? "active" : "inactive"}
-                className="w-full px-3 py-2 text-sm rounded-lg text-left data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700"
+                className="w-full px-4 py-2 text-sm rounded-lg text-left text-gray-500 hover:bg-gray-50 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 data-[state=active]:font-medium transition-colors"
               >
                 <span>{subItem.label}</span>
               </SidebarMenuButton>
