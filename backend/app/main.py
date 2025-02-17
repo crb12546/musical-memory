@@ -8,6 +8,7 @@ from typing import List
 import shutil
 from pathlib import Path
 from uuid import UUID
+from datetime import datetime
 
 app = FastAPI()
 
@@ -104,6 +105,25 @@ def create_interview(interview: schemas.InterviewCreate, db: Session = Depends(d
 @app.get("/api/interviews/", response_model=List[schemas.Interview])
 def list_interviews(db: Session = Depends(database.get_db)):
     return db.query(models.Interview).all()
+
+@app.put("/api/interviews/{interview_id}", response_model=schemas.Interview)
+def update_interview(
+    interview_id: UUID,
+    interview: schemas.Interview,
+    db: Session = Depends(database.get_db)
+):
+    db_interview = db.query(models.Interview).filter(models.Interview.id == interview_id).first()
+    if not db_interview:
+        raise HTTPException(status_code=404, detail="Interview not found")
+    
+    update_data = interview.dict(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(db_interview, key, value)
+    
+    db_interview.updated_at = datetime.utcnow()
+    db.commit()
+    db.refresh(db_interview)
+    return db_interview
 
 # Candidate endpoints
 @app.post("/api/candidates/", response_model=schemas.Candidate)

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import * as React from "react";
 import { Button } from "./button";
 import { Input } from "./input";
 import { Label } from "./label";
@@ -13,7 +13,7 @@ interface InterviewFeedbackFormProps {
 }
 
 export function InterviewFeedbackForm({ interview, onSuccess }: InterviewFeedbackFormProps) {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = React.useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -35,7 +35,7 @@ export function InterviewFeedbackForm({ interview, onSuccess }: InterviewFeedbac
       await api.updateInterview(interview.id, {
         ...interview,
         status: 'completed',
-        feedback: JSON.stringify(feedback)
+        feedback: feedback
       });
 
       toast.success("面试反馈已提交");
