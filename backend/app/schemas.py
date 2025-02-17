@@ -132,19 +132,31 @@ class Requirement(RequirementBase):
     class Config:
         from_attributes = True
 
+class InterviewFeedback(BaseModel):
+    technical_score: int = Field(ge=1, le=5)
+    communication_score: int = Field(ge=1, le=5)
+    culture_fit_score: int = Field(ge=1, le=5)
+    strengths: List[str]
+    areas_for_improvement: List[str]
+    recommendation: str
+    overall_rating: float = Field(ge=1.0, le=5.0)
+    interviewer_notes: Optional[str] = None
+
 class InterviewBase(BaseModel):
     project_id: UUID
     candidate_id: UUID
     scheduled_time: datetime
-    status: str
+    interview_type: str = Field(default="technical")  # technical, behavioral, culture
+    status: str = Field(default="scheduled")  # scheduled, completed, cancelled, no_show
 
 class InterviewCreate(InterviewBase):
     pass
 
 class Interview(InterviewBase):
     id: UUID
-    feedback: Optional[str] = None
+    feedback: Optional[InterviewFeedback] = None
     created_at: datetime
+    updated_at: Optional[datetime] = None
     
     class Config:
         from_attributes = True
