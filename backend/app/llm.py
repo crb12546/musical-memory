@@ -69,50 +69,50 @@ def parse_resume(file_path: str, file_type: str) -> Dict[str, Any]:
             raise ValueError("Empty resume content")
             
         # Use OpenAI to analyze the resume with more structured output
-        prompt = f"""Analyze the following resume and extract detailed information in JSON format with the following structure:
-        {{
-            "skills": {{
-                "technical": ["skill1", "skill2", ...],
-                "soft": ["skill1", "skill2", ...],
-                "languages": ["language1", "language2", ...]
-            }},
-            "experience": [
-                {{
-                    "company": "company name",
-                    "title": "job title",
-                    "duration": "duration in years",
-                    "start_date": "YYYY-MM",
-                    "end_date": "YYYY-MM or present",
-                    "achievements": ["achievement1", "achievement2", ...],
-                    "technologies": ["tech1", "tech2", ...]
-                }}
-            ],
-            "education": [
-                {{
-                    "institution": "school name",
-                    "degree": "degree type",
-                    "field": "field of study",
-                    "graduation_date": "YYYY-MM",
-                    "gpa": "optional GPA"
-                }}
-            ],
-            "certifications": [
-                {{
-                    "name": "certification name",
-                    "issuer": "issuing organization",
-                    "date": "YYYY-MM",
-                    "expires": "YYYY-MM or never"
-                }}
-            ],
-            "total_years_experience": "number",
-            "career_level": "entry|mid|senior|executive",
-            "suggested_roles": ["role1", "role2", ...],
-            "suggested_tags": ["tag1", "tag2", ...]
-        }}
-
-        Resume text:
-        {text}
-        """
+        prompt = (
+            "Analyze the following resume and extract detailed information in JSON format "
+            "with the following structure:\n"
+            "{\n"
+            '    "skills": {\n'
+            '        "technical": ["skill1", "skill2", ...],\n'
+            '        "soft": ["skill1", "skill2", ...],\n'
+            '        "languages": ["language1", "language2", ...]\n'
+            "    },\n"
+            '    "experience": [\n'
+            "        {\n"
+            '            "company": "company name",\n'
+            '            "title": "job title",\n'
+            '            "duration": "duration in years",\n'
+            '            "start_date": "YYYY-MM",\n'
+            '            "end_date": "YYYY-MM or present",\n'
+            '            "achievements": ["achievement1", "achievement2", ...],\n'
+            '            "technologies": ["tech1", "tech2", ...]\n'
+            "        }\n"
+            "    ],\n"
+            '    "education": [\n'
+            "        {\n"
+            '            "institution": "school name",\n'
+            '            "degree": "degree type",\n'
+            '            "field": "field of study",\n'
+            '            "graduation_date": "YYYY-MM",\n'
+            '            "gpa": "optional GPA"\n'
+            "        }\n"
+            "    ],\n"
+            '    "certifications": [\n'
+            "        {\n"
+            '            "name": "certification name",\n'
+            '            "issuer": "issuing organization",\n'
+            '            "date": "YYYY-MM",\n'
+            '            "expires": "YYYY-MM or never"\n'
+            "        }\n"
+            "    ],\n"
+            '    "total_years_experience": "number",\n'
+            '    "career_level": "entry|mid|senior|executive",\n'
+            '    "suggested_roles": ["role1", "role2", ...],\n'
+            '    "suggested_tags": ["tag1", "tag2", ...]\n'
+            "}\n\n"
+            f"Resume text:\n{text}"
+        )
         
         response = client.chat.completions.create(
             model="gpt-4",
