@@ -38,15 +38,45 @@ def parse_resume(file_path: str, file_type: str) -> Dict:
         else:
             raise ValueError(f"Unsupported file type: {file_type}")
         
-        # Use OpenAI to analyze the resume
-        prompt = f"""Analyze the following resume and extract key information in JSON format with the following structure:
+        # Use OpenAI to analyze the resume with more structured output
+        prompt = f"""Analyze the following resume and extract detailed information in JSON format with the following structure:
         {{
-            "skills": ["skill1", "skill2", ...],
-            "experience": {{
-                "years": "X",
-                "areas": ["area1", "area2", ...]
+            "skills": {{
+                "technical": ["skill1", "skill2", ...],
+                "soft": ["skill1", "skill2", ...],
+                "languages": ["language1", "language2", ...]
             }},
-            "education": ["degree1", "degree2", ...],
+            "experience": [
+                {{
+                    "company": "company name",
+                    "title": "job title",
+                    "duration": "duration in years",
+                    "start_date": "YYYY-MM",
+                    "end_date": "YYYY-MM or present",
+                    "achievements": ["achievement1", "achievement2", ...],
+                    "technologies": ["tech1", "tech2", ...]
+                }}
+            ],
+            "education": [
+                {{
+                    "institution": "school name",
+                    "degree": "degree type",
+                    "field": "field of study",
+                    "graduation_date": "YYYY-MM",
+                    "gpa": "optional GPA"
+                }}
+            ],
+            "certifications": [
+                {{
+                    "name": "certification name",
+                    "issuer": "issuing organization",
+                    "date": "YYYY-MM",
+                    "expires": "YYYY-MM or never"
+                }}
+            ],
+            "total_years_experience": "number",
+            "career_level": "entry|mid|senior|executive",
+            "suggested_roles": ["role1", "role2", ...],
             "suggested_tags": ["tag1", "tag2", ...]
         }}
 

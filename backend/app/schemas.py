@@ -31,6 +31,43 @@ class Candidate(CandidateBase):
     class Config:
         from_attributes = True
 
+class ExperienceEntry(BaseModel):
+    company: str
+    title: str
+    duration: str
+    start_date: str
+    end_date: str
+    achievements: List[str]
+    technologies: List[str]
+
+class EducationEntry(BaseModel):
+    institution: str
+    degree: str
+    field: str
+    graduation_date: str
+    gpa: Optional[str] = None
+
+class CertificationEntry(BaseModel):
+    name: str
+    issuer: str
+    date: str
+    expires: Optional[str] = None
+
+class Skills(BaseModel):
+    technical: List[str]
+    soft: List[str]
+    languages: List[str]
+
+class ParsedResumeContent(BaseModel):
+    skills: Skills
+    experience: List[ExperienceEntry]
+    education: List[EducationEntry]
+    certifications: List[CertificationEntry] = []
+    total_years_experience: float
+    career_level: str
+    suggested_roles: List[str]
+    suggested_tags: List[str]
+
 class ResumeBase(BaseModel):
     candidate_id: UUID
     file_type: str
@@ -41,8 +78,9 @@ class ResumeCreate(ResumeBase):
 class Resume(ResumeBase):
     id: UUID
     file_path: str
-    parsed_content: Optional[str] = None
+    parsed_content: Optional[ParsedResumeContent] = None
     created_at: datetime
+    updated_at: Optional[datetime] = None
     tags: List[Tag] = []
     
     class Config:
