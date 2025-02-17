@@ -32,7 +32,17 @@ def extract_text_from_pdf(file_path: str) -> str:
         print(f"Error extracting text from PDF: {str(e)}")
         raise ValueError(f"Failed to extract text from PDF: {str(e)}")
 
-def parse_resume(file_path: str, file_type: str) -> Dict:
+def parse_resume(file_path: str, file_type: str) -> Dict[str, Any]:
+    """
+    Parse a resume file and extract structured information using OpenAI's GPT model.
+    
+    Args:
+        file_path: Path to the resume file
+        file_type: MIME type of the file
+        
+    Returns:
+        Dict containing parsed resume information or error details
+    """
     try:
         # Extract text based on file type
         if file_type == "application/pdf":
@@ -40,11 +50,14 @@ def parse_resume(file_path: str, file_type: str) -> Dict:
         elif file_type in ["application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"]:
             text = extract_text_from_docx(file_path)
         elif file_type == "text/plain":
-            with open(file_path, 'r') as f:
+            with open(file_path, 'r', encoding='utf-8') as f:
                 text = f.read()
         else:
             raise ValueError(f"Unsupported file type: {file_type}")
         
+        if not text.strip():
+            raise ValueError("Empty resume content")
+            
         # Use OpenAI to analyze the resume with more structured output
         prompt = f"""Analyze the following resume and extract detailed information in JSON format with the following structure:
         {{
