@@ -11,7 +11,7 @@ import { SidebarProvider, Sidebar, SidebarMenu } from './components/ui/sidebar'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './components/ui/dialog'
 import { Badge } from './components/ui/badge'
 import { api } from './lib/api'
-import type { Candidate, Project, Interview, Resume } from './lib/types'
+import type { Candidate, Project, Interview, Resume, Tag } from './lib/types'
 import { cn } from './lib/utils'
 import { useState, useEffect } from 'react'
 
@@ -117,7 +117,7 @@ export default function App() {
                   <CandidateList 
                     candidates={candidates.filter(c => {
                       const resume = resumes.find(r => r.candidate_id === c.id);
-                      return resume?.tags.some(tag => 
+                      return resume?.tags.some((tag: Tag) => 
                         selectedProject.qualifications.toLowerCase().includes(tag.name.toLowerCase())
                       );
                     })}
