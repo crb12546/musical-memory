@@ -41,6 +41,7 @@ import {
 import { ProjectDetail } from "./project-detail";
 import type { Project } from "../../lib/api";
 import { format } from "date-fns";
+import { toast } from "sonner";
 
 const statusOptions = [
   { value: "all", label: "全部状态" },
@@ -173,11 +174,36 @@ export function ProjectList({ projects }: { projects: Project[] }) {
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>操作</DropdownMenuLabel>
               <DropdownMenuItem onClick={() => setSelectedProject(project)}>
-                查看详情
+                编辑项目
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>编辑</DropdownMenuItem>
-              <DropdownMenuItem>删除</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => {
+                const updatedData = { ...project, status: project.status === 'open' ? 'closed' : 'open' };
+                api.updateProject(project.id, updatedData)
+                  .then(() => {
+                    toast.success('项目状态已更新');
+                    window.location.reload();
+                  })
+                  .catch((error: Error) => {
+                    toast.error('更新失败: ' + error.message);
+                  });
+              }}>
+                {project.status === 'open' ? '关闭项目' : '重新开启'}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => {
+                if (window.confirm('确定要删除这个项目吗？此操作无法撤销。')) {
+                  api.deleteProject(project.id)
+                    .then(() => {
+                      toast.success('项目已删除');
+                      window.location.reload();
+                    })
+                    .catch((error: Error) => {
+                      toast.error('删除失败: ' + error.message);
+                    });
+                }
+              }}>
+                删除
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         )
