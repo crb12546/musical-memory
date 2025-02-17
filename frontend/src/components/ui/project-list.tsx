@@ -255,58 +255,33 @@ export function ProjectList({
             }
             className="w-full md:w-64"
           />
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="选择状态" />
-          </SelectTrigger>
-          <SelectContent>
-            {statusOptions.map(option => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="选择优先级" />
-          </SelectTrigger>
-          <SelectContent>
-            {priorityOptions.map(option => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="全部状态" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">全部状态</SelectItem>
+              {statusOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={priorityFilter} onValueChange={setPriorityFilter}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="全部优先级" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">全部优先级</SelectItem>
+              {priorityOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="全部状态" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">全部状态</SelectItem>
-            {statusOptions.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="全部优先级" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">全部优先级</SelectItem>
-            {priorityOptions.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
       </div>
       <div className="bg-white rounded-lg shadow-md overflow-x-auto">
         <div className="min-w-[800px]">
@@ -356,33 +331,6 @@ export function ProjectList({
           </Table>
         </div>
       </div>
-      <div className="mt-6 flex flex-col sm:flex-row items-center justify-between px-4 gap-4">
-        <div className="text-sm text-gray-500 order-2 sm:order-1">
-          共 {table.getFilteredRowModel().rows.length} 条记录
-        </div>
-        <div className="flex items-center space-x-4 order-1 sm:order-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-            className="min-w-[80px]"
-          >
-            上一页
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-            className="min-w-[80px]"
-          >
-            下一页
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
       <div className="mt-6 flex flex-col sm:flex-row items-center justify-between px-4 gap-4">
         <div className="text-sm text-gray-500 order-2 sm:order-1">
           共 {table.getFilteredRowModel().rows.length} 条记录
