@@ -10,6 +10,7 @@ import { Textarea } from "./textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./form";
 import { api } from "../../lib/api";
+import type { Project } from "../../lib/api";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./tooltip";
 import { Info } from "lucide-react";
@@ -83,10 +84,19 @@ export function ProjectForm({
   const form = useForm<ProjectFormData>({
     resolver: zodResolver(projectFormSchema),
     defaultValues: project ? {
-      ...project,
+      title: project.title,
+      department: project.department,
+      headcount: project.headcount,
+      job_type: project.job_type as "full-time" | "part-time" | "contract",
+      job_level: project.job_level as "entry" | "mid" | "senior" | "lead",
+      location: project.location,
+      remote_policy: project.remote_policy as "office" | "hybrid" | "remote",
+      salary_range: project.salary_range,
+      description: project.description,
       responsibilities: JSON.parse(project.responsibilities),
       qualifications: JSON.parse(project.qualifications),
       benefits: project.benefits ? JSON.parse(project.benefits) : [''],
+      priority: project.priority as "low" | "normal" | "high" | "urgent",
       target_date: new Date(project.target_date).toISOString().split('T')[0],
     } : {
       title: '高级软件工程师',
@@ -106,21 +116,21 @@ export function ProjectForm({
     }
   });
 
-  const onSubmit = async (data: ProjectFormData) => {
+  const onSubmit = async (formData: ProjectFormData) => {
     setLoading(true);
     try {
-      const data = {
-        ...data,
-        responsibilities: JSON.stringify(data.responsibilities),
-        qualifications: JSON.stringify(data.qualifications),
-        benefits: data.benefits ? JSON.stringify(data.benefits) : undefined,
+      const projectData = {
+        ...formData,
+        responsibilities: JSON.stringify(formData.responsibilities),
+        qualifications: JSON.stringify(formData.qualifications),
+        benefits: formData.benefits ? JSON.stringify(formData.benefits) : undefined,
       };
       
       if (project) {
-        await api.updateProject(project.id, data);
+        await api.updateProject(project.id, projectData);
         toast.success("招聘需求更新成功");
       } else {
-        await api.createProject(data);
+        await api.createProject(projectData);
         toast.success("招聘需求创建成功");
         form.reset();
       }
