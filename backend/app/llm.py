@@ -67,9 +67,10 @@ def parse_resume(file_path: str, file_type: str) -> Dict[str, Any]:
         
         if not text.strip():
             raise ValueError("Empty resume content")
-            
+        
         # Use OpenAI to analyze the resume with more structured output
-        prompt = f"""Analyze the following resume and extract detailed information in JSON format with the following structure:
+        try:
+            prompt = f"""Analyze the following resume and extract detailed information in JSON format with the following structure:
         {{
             "skills": {{
                 "technical": ["skill1", "skill2", ...],
