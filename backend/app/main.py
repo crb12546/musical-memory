@@ -16,10 +16,7 @@ app = FastAPI()
 # Configure CORS for frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://slack-language-app-ky3hcdvq.devinapps.com",
-        "http://localhost:5173"  # For local development
-    ],
+    allow_origins=["*"],  # Allow all origins for development
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
