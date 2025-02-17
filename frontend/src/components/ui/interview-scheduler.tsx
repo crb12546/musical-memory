@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Textarea } from "./textarea";
 import { api } from "../../lib/api";
 import { toast } from "sonner";
-import type { Project, Candidate, InterviewCreate } from "../../lib/api";
+import type { Project, Candidate, InterviewCreate } from "../../lib/types";
 
 export function InterviewScheduler({
   project,
@@ -24,11 +24,25 @@ export function InterviewScheduler({
     e.preventDefault();
     setLoading(true);
 
-    const formData = new FormData(e.currentTarget);
-    const status = formData.get('status') as string || 'scheduled';
-    const feedback = formData.get('feedback') as string;
-    const rating = formData.get('rating') as string;
-    const interviewType = formData.get('interview_type') as string;
+    try {
+      const formData = new FormData(e.currentTarget);
+      const status = formData.get('status') as string || 'scheduled';
+      const feedback = formData.get('feedback') as string;
+      const rating = formData.get('rating') as string;
+      const interviewType = formData.get('interview_type') as string;
+      const scheduledTime = formData.get('scheduled_time') as string;
+
+      if (!scheduledTime) {
+        throw new Error('请选择面试时间');
+      }
+
+      if (status === 'completed' && !rating) {
+        throw new Error('已完成的面试必须提供评分');
+      }
+
+      if (status === 'completed' && !feedback) {
+        throw new Error('已完成的面试必须提供反馈');
+      }
 
     try {
       const interviewData: InterviewCreate = {
@@ -55,34 +69,37 @@ export function InterviewScheduler({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Label htmlFor="candidate_id">候选人</Label>
-        <Select name="candidate_id" required>
-          <SelectTrigger>
-            <SelectValue placeholder="选择候选人" />
-          </SelectTrigger>
-          <SelectContent>
-            {candidates.map((candidate) => (
-              <SelectItem key={candidate.id} value={candidate.id}>
-                {candidate.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="scheduled_time">面试时间</Label>
-        <Input
-          id="scheduled_time"
-          name="scheduled_time"
-          type="datetime-local"
-          required
-        />
-      </div>
-      <div className="space-y-4 border-t pt-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-2">
+          <Label htmlFor="candidate_id">候选人</Label>
+          <Select name="candidate_id" required>
+            <SelectTrigger>
+              <SelectValue placeholder="选择候选人" />
+            </SelectTrigger>
+            <SelectContent>
+              {candidates.map((candidate) => (
+                <SelectItem key={candidate.id} value={candidate.id}>
+                  {candidate.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="scheduled_time">面试时间</Label>
+          <Input
+            id="scheduled_time"
+            name="scheduled_time"
+            type="datetime-local"
+            required
+            min={new Date().toISOString().split('.')[0]}
+          />
+        </div>
+
         <div className="space-y-2">
           <Label htmlFor="interview_type">面试类型</Label>
-          <Select name="interview_type" defaultValue="technical">
+          <Select name="interview_type" defaultValue="technical" required>
             <SelectTrigger>
               <SelectValue placeholder="选择面试类型" />
             </SelectTrigger>
@@ -96,7 +113,7 @@ export function InterviewScheduler({
 
         <div className="space-y-2">
           <Label htmlFor="status">面试状态</Label>
-          <Select name="status" defaultValue="scheduled">
+          <Select name="status" defaultValue="scheduled" required>
             <SelectTrigger>
               <SelectValue placeholder="选择面试状态" />
             </SelectTrigger>
@@ -125,12 +142,12 @@ export function InterviewScheduler({
           </Select>
         </div>
 
-        <div className="space-y-2">
+        <div className="col-span-2 space-y-2">
           <Label htmlFor="feedback">面试反馈</Label>
           <Textarea
             name="feedback"
             placeholder="请输入面试反馈..."
-            className="min-h-[100px]"
+            className="min-h-[120px]"
           />
         </div>
       </div>
