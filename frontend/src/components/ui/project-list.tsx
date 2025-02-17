@@ -281,12 +281,11 @@ export function ProjectList({
       </div>
       <div className="bg-white rounded-lg shadow-md overflow-hidden">
         <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="border-b border-gray-200">
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id} className="bg-gray-50 px-6 py-4">
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id} className="border-b border-gray-200">
+                  {headerGroup.headers.map((header) => (
+                    <TableHead key={header.id} className="bg-gray-50/50 px-4 py-3.5 text-gray-700 text-sm font-medium tracking-wide">
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -294,37 +293,36 @@ export function ProjectList({
                             header.getContext()
                           )}
                     </TableHead>
-                  )
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                  className="hover:bg-gray-50 transition-colors"
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="px-6 py-4">
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
                   ))}
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-32 text-center text-gray-500"
-                >
-                  暂无数据
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
+                    className="hover:bg-gray-50 transition-colors"
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id} className="px-4 py-3.5 text-sm text-gray-600">
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-32 text-center text-gray-500"
+                  >
+                    <div className="flex items-center justify-center h-[300px] text-gray-500">暂无数据</div>
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
         </Table>
       </div>
       <div className="mt-6 flex items-center justify-between px-4">
@@ -352,8 +350,6 @@ export function ProjectList({
           </Button>
         </div>
       </div>
-
-      {/* Project detail view removed as it's replaced by edit functionality */}
     </div>
   );
 }
