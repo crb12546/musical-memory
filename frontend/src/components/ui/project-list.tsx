@@ -354,6 +354,5 @@ export function ProjectList({
         </div>
       </div>
     </div>
-    </div>
   );
 }
