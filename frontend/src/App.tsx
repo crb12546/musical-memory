@@ -13,7 +13,9 @@ import { Badge } from './components/ui/badge'
 import { api } from './lib/api'
 import type { Candidate, Project, Interview, Resume, Tag } from './lib/types'
 import { cn } from './lib/utils'
+import * as React from 'react'
 import { useState, useEffect } from 'react'
+import { toast } from 'sonner'
 
 export default function App() {
   const [activeSection, setActiveSection] = useState<string>("project-list")
@@ -107,7 +109,7 @@ export default function App() {
         return (
           <Section>
             <Title>创建招聘需求</Title>
-            <ProjectForm onSuccess={() => api.getProjects().then(setProjects)} />
+            <ProjectForm onSuccess={() => api.getProjects().then(data => updateProjects(data))} />
           </Section>
         )
       case "resume-upload":
@@ -116,7 +118,7 @@ export default function App() {
             <Title>简历录入</Title>
             <ResumeUpload 
               candidates={candidates} 
-              onSuccess={() => api.getResumes().then(setResumes)} 
+              onSuccess={() => api.getResumes().then(data => updateResumes(data))} 
             />
           </Section>
         )
@@ -177,7 +179,7 @@ export default function App() {
                 project={selectedProject}
                 candidates={candidates}
                 onSuccess={() => {
-                  api.getInterviews().then(setInterviews);
+                  api.getInterviews().then(data => updateInterviews(data));
                   setSelectedProject(null);
                 }}
               />
@@ -292,7 +294,7 @@ export default function App() {
               onSuccess={() => {
                 setShowProjectForm(false)
                 setSelectedProject(null)
-                api.getProjects().then(setProjects)
+                api.getProjects().then(data => updateProjects(data))
               }} 
             />
           </DialogContent>
@@ -310,7 +312,7 @@ export default function App() {
               candidates={candidates}
               onSuccess={() => {
                 setSelectedProject(null)
-                api.getInterviews().then(setInterviews)
+                api.getInterviews().then(data => updateInterviews(data))
               }}
             />
           </DialogContent>
