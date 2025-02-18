@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { Button } from "./button";
-import { Badge } from "./badge";
+
 import { DataTable } from "./data-table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./dialog";
-import type { Resume, Candidate } from "../../lib/types";
+import type { Resume, Candidate } from "../../lib/api";
 import { ColumnDef } from "@tanstack/react-table";
 import { FileText, Mail, Phone } from "lucide-react";
 import { ResumePreview } from "./resume-preview";
@@ -56,18 +56,14 @@ export function CandidateList({ candidates, resumes }: CandidateListProps) {
       ),
     },
     {
-      accessorKey: "status",
-      header: "状态",
+      id: "created_at",
+      header: "创建时间",
       cell: ({ row }) => {
-        const statusColors = {
-          active: "bg-green-100 text-green-700",
-          pending: "bg-yellow-100 text-yellow-700",
-          inactive: "bg-gray-100 text-gray-700",
-        };
+        const date = new Date(row.original.created_at);
         return (
-          <Badge className={statusColors[row.original.status as keyof typeof statusColors]}>
-            {row.original.status}
-          </Badge>
+          <div className="text-sm text-gray-500">
+            {date.toLocaleDateString()}
+          </div>
         );
       },
     },

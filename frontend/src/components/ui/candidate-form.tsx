@@ -1,58 +1,102 @@
-import * as React from "react";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import { Button } from "./button";
 import { Input } from "./input";
-import { Label } from "./label";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./form";
 import { api } from "../../lib/api";
+import type { Candidate, OnSuccessCallback } from "../../lib/api";
 import { toast } from "sonner";
 
-export function CandidateForm({ onSuccess }: { onSuccess?: () => void }) {
+const candidateFormSchema = z.object({
+  name: z.string().min(2, "姓名至少2个字符"),
+  email: z.string().email("请输入有效的邮箱地址"),
+  phone: z.string().min(11, "请输入有效的电话号码"),
+});
+
+type CandidateFormData = z.infer<typeof candidateFormSchema>;
+
+export function CandidateForm({ 
+  onSuccess 
+}: { 
+  onSuccess?: OnSuccessCallback<Candidate>;
+}) {
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
+  const form = useForm<CandidateFormData>({
+    resolver: zodResolver(candidateFormSchema),
+    defaultValues: {
+      name: '',
+      email: '',
+      phone: '',
+    }
+  });
 
-    const formData = new FormData(e.currentTarget);
+  const onSubmit = async (data: CandidateFormData) => {
+    setLoading(true);
     try {
-      const response = await api.createCandidate({
-        name: formData.get('name') as string,
-        email: formData.get('email') as string,
-        phone: formData.get('phone') as string,
-        status: 'active',
-        updated_at: new Date().toISOString(),
-      });
-      if (response && response.id) {
-        toast.success("Candidate created successfully");
-        e.currentTarget.reset();
-        onSuccess?.();
-      } else {
-        toast.error("Failed to create candidate: Invalid response");
-      }
-    } catch {
-      toast.error("Failed to create candidate: Network error");
+      await api.createCandidate(data);
+      toast.success("候选人创建成功");
+      form.reset();
+      const candidates = await api.getCandidates();
+      onSuccess?.(candidates);
+    } catch (error) {
+      toast.error("创建失败：" + (error as Error).message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="name">Name</Label>
-        <Input id="name" name="name" required />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
-        <Input id="email" name="email" type="email" required />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="phone">Phone</Label>
-        <Input id="phone" name="phone" type="tel" required />
-      </div>
-      <Button type="submit" disabled={loading}>
-        {loading ? "Creating..." : "Create Candidate"}
-      </Button>
-    </form>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>姓名</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>邮箱</FormLabel>
+              <FormControl>
+                <Input {...field} type="email" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="phone"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>电话</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <Button type="submit" disabled={loading} className="w-full">
+          {loading ? "创建中..." : "创建候选人"}
+        </Button>
+      </form>
+    </Form>
   );
 }

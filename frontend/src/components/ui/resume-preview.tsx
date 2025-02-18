@@ -1,6 +1,6 @@
 import { Badge } from "./badge";
 import { ScrollArea } from "./scroll-area";
-import type { Resume } from "../../lib/types";
+import type { Resume } from "../../lib/api";
 
 interface ResumePreviewProps {
   resume: Resume;

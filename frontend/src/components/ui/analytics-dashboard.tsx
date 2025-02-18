@@ -6,31 +6,31 @@ import { api } from "../../lib/api";
 import { format } from "date-fns";
 import { ArrowDownIcon, ArrowUpIcon, MinusIcon } from "lucide-react";
 
-export function AnalyticsDashboard() {
-  const [projects, setProjects] = React.useState<Project[]>([]);
-  const [interviews, setInterviews] = React.useState<Interview[]>([]);
+interface AnalyticsDashboardProps {
+  projects: Project[];
+  interviews: Interview[];
+}
+
+export function AnalyticsDashboard({ projects, interviews }: AnalyticsDashboardProps) {
   const [resumes, setResumes] = React.useState<Resume[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
-    const fetchData = async () => {
+    const fetchResumes = async () => {
       try {
-        const [projectsData, interviewsData, resumesData] = await Promise.all([
-          api.getProjects(),
-          api.getInterviews(),
-          api.getResumes()
-        ]);
-        setProjects(projectsData);
-        setInterviews(interviewsData);
+        const resumesData = await api.getResumes();
         setResumes(resumesData);
+        setError(null); // Clear any previous errors
       } catch (err) {
-        setError((err as Error).message);
+        const errorMessage = err instanceof Error ? err.message : '获取数据失败，请稍后重试';
+        console.error('简历数据加载失败:', err);
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
     };
-    fetchData();
+    fetchResumes();
   }, []);
   const getProjectStatus = (status: string) => {
     switch (status) {
@@ -137,10 +137,20 @@ export function AnalyticsDashboard() {
   const conversion = calculateInterviewConversion();
   const cycle = calculateRecruitmentCycle();
 
+  if (!Array.isArray(projects) || !Array.isArray(interviews)) {
+    return (
+      <div className="p-4 border border-yellow-200 rounded-md bg-yellow-50 text-yellow-700">
+        <h3 className="text-lg font-medium mb-2">数据加载中</h3>
+        <p>请稍候...</p>
+      </div>
+    );
+  }
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
+      <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        <p className="text-gray-600">正在加载分析数据...</p>
       </div>
     );
   }
@@ -148,8 +158,33 @@ export function AnalyticsDashboard() {
   if (error) {
     return (
       <div className="p-4 border border-red-200 rounded-md bg-red-50 text-red-700">
-        <h3 className="text-lg font-medium mb-2">加载失败</h3>
+        <h3 className="text-lg font-medium mb-2">数据加载失败</h3>
         <p>{error}</p>
+        <p className="text-sm mt-2">请检查网络连接并刷新页面重试</p>
+        <button 
+          onClick={() => window.location.reload()}
+          className="mt-4 px-4 py-2 bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors"
+        >
+          刷新页面
+        </button>
+      </div>
+    );
+  }
+
+  if (!Array.isArray(projects) || !Array.isArray(interviews) || !Array.isArray(resumes)) {
+    return (
+      <div className="p-4 border border-yellow-200 rounded-md bg-yellow-50 text-yellow-700">
+        <h3 className="text-lg font-medium mb-2">数据加载中</h3>
+        <p>请稍候...</p>
+      </div>
+    );
+  }
+
+  if (!Array.isArray(projects) || !Array.isArray(interviews) || !Array.isArray(resumes)) {
+    return (
+      <div className="p-4 border border-yellow-200 rounded-md bg-yellow-50 text-yellow-700">
+        <h3 className="text-lg font-medium mb-2">数据加载中</h3>
+        <p>请稍候...</p>
       </div>
     );
   }

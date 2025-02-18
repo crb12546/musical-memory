@@ -5,7 +5,7 @@ import { Input } from "./input";
 import { Label } from "./label";
 import { api } from "../../lib/api";
 import { toast } from "sonner";
-import type { Candidate } from "../../lib/api";
+import type { Candidate, Resume, OnSuccessCallback } from "../../lib/api";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./select";
 
 export function ResumeUpload({ 
@@ -13,7 +13,7 @@ export function ResumeUpload({
   onSuccess 
 }: { 
   candidates: Candidate[];
-  onSuccess?: () => void;
+  onSuccess?: OnSuccessCallback<Resume>;
 }) {
   const [loading, setLoading] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
@@ -36,7 +36,7 @@ export function ResumeUpload({
 
 
       e.currentTarget.reset();
-      onSuccess?.();
+      onSuccess?.(await api.getResumes());
     } catch (error) {
       toast.error("简历上传失败");
       console.error('Upload error:', error);

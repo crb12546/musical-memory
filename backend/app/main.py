@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 import os
 import json
+import logging
 from . import models, schemas, database
 from .notifications import notification_service, NotificationType
 from typing import List
@@ -11,16 +12,24 @@ from pathlib import Path
 from uuid import UUID
 from datetime import datetime
 
+# Configure logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+handler = logging.StreamHandler()
+handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+logger.addHandler(handler)
+
 app = FastAPI()
 
-# Configure CORS for frontend
+# Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins for development
+    allow_origins=["https://musical-memory-frontend-v1.fly.dev", "http://localhost:5173"],
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-    expose_headers=["*"]
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"],
+    allow_headers=["Content-Type", "Accept", "Authorization", "Origin", "X-Requested-With", "Access-Control-Allow-Origin", "Access-Control-Allow-Headers", "Access-Control-Allow-Methods", "Content-Language", "Accept-Language"],
+    expose_headers=["Content-Length", "Content-Type", "Access-Control-Allow-Origin", "Access-Control-Allow-Credentials"],
+    max_age=3600
 )
 
 # Create uploads directory
@@ -42,6 +51,7 @@ async def startup_event():
         print(f"Error during startup: {str(e)}")
 
 @app.get("/healthz")
+@app.head("/healthz")
 async def healthz():
     return {"status": "ok"}
 
@@ -228,7 +238,15 @@ async def upload_resume(
 
 @app.get("/api/resumes/", response_model=List[schemas.Resume])
 def list_resumes(db: Session = Depends(database.get_db)):
-    return db.query(models.Resume).all()
+    try:
+        resumes = db.query(models.Resume).all()
+        return resumes
+    except Exception as e:
+        logger.error(f"Error fetching resumes: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail="获取简历列表失败，请稍后重试"
+        )
 
 # Tag endpoints
 @app.post("/api/tags/", response_model=schemas.Tag)

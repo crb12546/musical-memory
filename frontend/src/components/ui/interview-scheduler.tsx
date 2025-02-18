@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Textarea } from "./textarea";
 import { api } from "../../lib/api";
 import { toast } from "sonner";
-import type { Project, Candidate } from "../../lib/types";
+import type { Project, Candidate, Interview, InterviewCreate, OnSuccessCallback } from "../../lib/api";
 
 export function InterviewScheduler({
   project,
@@ -15,7 +15,7 @@ export function InterviewScheduler({
 }: {
   project: Project;
   candidates: Candidate[];
-  onSuccess?: () => void;
+  onSuccess?: OnSuccessCallback<Interview>;
 }) {
   const [loading, setLoading] = useState(false);
 
@@ -43,22 +43,28 @@ export function InterviewScheduler({
         throw new Error('已完成的面试必须提供反馈');
       }
 
-      const interviewData = {
+      const interviewData: InterviewCreate = {
         project_id: project.id,
         candidate_id: formData.get('candidate_id') as string,
         scheduled_time: new Date(formData.get('scheduled_time') as string).toISOString(),
         status,
-        feedback: feedback ? JSON.stringify({
-          type: interviewType,
-          rating: parseInt(rating || '0', 10),
-          comments: feedback
-        }) : undefined
+        interview_type: interviewType,
+        feedback: feedback ? {
+          technical_score: parseInt(rating || '0', 10),
+          communication_score: parseInt(rating || '0', 10),
+          culture_fit_score: parseInt(rating || '0', 10),
+          overall_rating: parseInt(rating || '0', 10),
+          strengths: [],
+          areas_for_improvement: [],
+          recommendation: feedback,
+          interviewer_notes: feedback
+        } : undefined
       };
 
       await api.createInterview(interviewData);
       toast.success(status === 'scheduled' ? "面试已安排" : "面试已更新");
       e.currentTarget.reset();
-      onSuccess?.();
+      onSuccess?.(await api.getInterviews());
     } catch (error) {
       toast.error("操作失败：" + (error as Error).message);
     } finally {

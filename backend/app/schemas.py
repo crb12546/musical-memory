@@ -78,7 +78,7 @@ class ResumeCreate(ResumeBase):
 class Resume(ResumeBase):
     id: UUID
     file_path: str
-    parsed_content: Optional[ParsedResumeContent] = None
+    parsed_content: Optional[str] = None  # JSON string of ParsedResumeContent
     created_at: datetime
     updated_at: Optional[datetime] = None
     tags: List[Tag] = []
@@ -154,7 +154,8 @@ class InterviewCreate(InterviewBase):
 
 class Interview(InterviewBase):
     id: UUID
-    feedback: Optional[InterviewFeedback] = None
+    feedback: Optional[str] = None  # JSON string for feedback
+    parsed_content: Optional[str] = None  # JSON string for parsed content
     created_at: datetime
     updated_at: Optional[datetime] = None
     

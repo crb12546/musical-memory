@@ -43,7 +43,7 @@ class Resume(Base):
     candidate_id = Column(String, ForeignKey('candidates.id'))
     file_path = Column(String, nullable=False)
     file_type = Column(String, nullable=False)
-    parsed_content = Column(String)
+    parsed_content = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     
     candidate = relationship("Candidate", back_populates="resumes")
@@ -107,11 +107,12 @@ class Interview(Base):
     scheduled_time = Column(DateTime, nullable=False)
     status = Column(String, nullable=False)  # scheduled, completed, cancelled
     interview_type = Column(String)  # technical, behavioral, culture
-    technical_score = Column(Integer)
-    communication_score = Column(Integer)
-    culture_fit_score = Column(Integer)
-    overall_rating = Column(Float)
-    feedback = Column(String)  # JSON string for detailed feedback
+    technical_score = Column(Integer, nullable=True)
+    communication_score = Column(Integer, nullable=True)
+    culture_fit_score = Column(Integer, nullable=True)
+    overall_rating = Column(Float, nullable=True)
+    feedback = Column(String, nullable=True)  # JSON string for detailed feedback
+    parsed_content = Column(String, nullable=True)  # JSON string for parsed content
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, onupdate=datetime.utcnow)
     
