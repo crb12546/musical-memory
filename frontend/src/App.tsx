@@ -163,6 +163,30 @@ export default function App() {
             )}
           </Section>
         )
+      case "interview-list":
+        return (
+          <Section>
+            <Title>面试列表</Title>
+            <div className="space-y-6">
+              {interviews.map(interview => {
+                const candidate = candidates.find(c => c.id === interview.candidate_id);
+                const project = projects.find(p => p.id === interview.project_id);
+                return (
+                  <div key={interview.id} className="border rounded-lg p-4">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="font-medium">{candidate?.name}</h3>
+                        <p className="text-sm text-gray-500">{project?.title}</p>
+                      </div>
+                      <Badge>{interview.status}</Badge>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </Section>
+        );
+
       case "interview-feedback":
         return (
           <Section>
