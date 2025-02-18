@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || 'https://musical-memory-api-v1.fly.dev';
+const API_URL = 'https://musical-memory-api-v1.fly.dev';
 
 export type OnSuccessCallback<T> = (value: T[]) => void | PromiseLike<void>;
 
