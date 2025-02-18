@@ -151,6 +151,15 @@ export function AnalyticsDashboard({ projects, interviews }: AnalyticsDashboardP
     );
   }
 
+  if (!Array.isArray(projects) || !Array.isArray(interviews) || !Array.isArray(resumes)) {
+    return (
+      <div className="p-4 border border-yellow-200 rounded-md bg-yellow-50 text-yellow-700">
+        <h3 className="text-lg font-medium mb-2">数据加载中</h3>
+        <p>请稍候...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

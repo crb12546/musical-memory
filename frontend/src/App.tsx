@@ -302,8 +302,54 @@ function AppContent() {
             </Section>
           </div>
         )
+      case "talent-matching":
+        return (
+          <Section>
+            <Title>人才匹配</Title>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <h3 className="font-medium">招聘需求</h3>
+                <div className="grid gap-4">
+                  {projects.map(project => (
+                    <div 
+                      key={project.id}
+                      className="p-4 border rounded-lg hover:border-blue-500 cursor-pointer"
+                      onClick={() => setSelectedProject(project)}
+                    >
+                      <h4 className="font-medium">{project.title}</h4>
+                      <p className="text-sm text-gray-500">{project.department}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="space-y-4">
+                <h3 className="font-medium">匹配候选人</h3>
+                {selectedProject ? (
+                  <CandidateList 
+                    candidates={candidates.filter(c => {
+                      const resume = resumes.find(r => r.candidate_id === c.id);
+                      return resume?.tags.some((tag: Tag) => 
+                        selectedProject.qualifications?.toLowerCase().includes(tag.name.toLowerCase())
+                      );
+                    })}
+                    resumes={resumes}
+                  />
+                ) : (
+                  <div className="text-gray-500 text-center p-8">
+                    请选择一个招聘需求以查看匹配的候选人
+                  </div>
+                )}
+              </div>
+            </div>
+          </Section>
+        );
       default:
-        return <div>404 - 页面不存在</div>
+        return (
+          <Section>
+            <Title>页面不存在</Title>
+            <p className="text-gray-500">请从左侧菜单选择功能</p>
+          </Section>
+        )
     }
   }
 
