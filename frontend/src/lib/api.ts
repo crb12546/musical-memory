@@ -94,7 +94,7 @@ export const api = {
   async createCandidate(data: Omit<Candidate, 'id' | 'created_at'>) {
     const response = await fetch(`${API_URL}/api/candidates/`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: defaultHeaders,
       body: JSON.stringify(data),
     });
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -118,8 +118,12 @@ export const api = {
     formData.append('file', file);
     formData.append('candidate_id', candidateId);
 
+    const headers = { ...defaultHeaders };
+    delete headers['Content-Type']; // Let browser set correct content-type for FormData
+
     const response = await fetch(`${API_URL}/api/resumes/`, {
       method: 'POST',
+      headers,
       body: formData,
     });
     if (!response.ok) {
@@ -130,7 +134,9 @@ export const api = {
   },
 
   async getResumes(): Promise<Resume[]> {
-    const response = await fetch(`${API_URL}/api/resumes/`);
+    const response = await fetch(`${API_URL}/api/resumes/`, {
+      headers: defaultHeaders
+    });
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.detail || `获取简历失败: HTTP错误 ${response.status}`);
@@ -140,7 +146,9 @@ export const api = {
 
   // Tags
   async getTags(): Promise<Tag[]> {
-    const response = await fetch(`${API_URL}/api/tags/`);
+    const response = await fetch(`${API_URL}/api/tags/`, {
+      headers: defaultHeaders
+    });
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     return response.json();
   },
@@ -148,7 +156,7 @@ export const api = {
   async createProject(data: Omit<Project, 'id' | 'status' | 'created_at'>): Promise<Project> {
     const response = await fetch(`${API_URL}/api/projects/`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: defaultHeaders,
       body: JSON.stringify(data),
     });
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -156,7 +164,9 @@ export const api = {
   },
   
   async getProjects(): Promise<Project[]> {
-    const response = await fetch(`${API_URL}/api/projects/`);
+    const response = await fetch(`${API_URL}/api/projects/`, {
+      headers: defaultHeaders
+    });
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     return response.json();
   },
