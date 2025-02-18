@@ -76,7 +76,7 @@ export function InterviewScheduler({
         interview_type: interviewType,
         rating: rating ? parseInt(rating, 10) : undefined,
         feedback: feedback || undefined
-      };
+      } as const;
 
       await api.createInterview(interviewData);
       toast.success(status === 'scheduled' ? "面试已安排" : "面试已更新");
