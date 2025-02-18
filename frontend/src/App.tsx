@@ -87,20 +87,13 @@ export default function App() {
     return () => clearInterval(interval);
   }, [refreshData]);
 
-  // Legacy effect for backward compatibility during transition
-  useEffect(() => {
-    Promise.all([
-      api.getCandidates(),
-      api.getResumes(),
-      api.getProjects(),
-      api.getInterviews()
-    ]).then(([candidatesData, resumesData, projectsData, interviewsData]) => {
-      updateCandidates(candidatesData as Candidate[])
-      updateResumes(resumesData as Resume[])
-      updateProjects(projectsData as Project[])
-      updateInterviews(interviewsData as Interview[])
-    })
-  }, [])
+  // Memoize update functions to prevent unnecessary re-renders
+  const memoizedUpdateFunctions = React.useMemo(() => ({
+    updateCandidates,
+    updateResumes,
+    updateProjects,
+    updateInterviews
+  }), []);
 
   const renderContent = () => {
     const Section = ({ children, className }: { children: React.ReactNode, className?: string }) => (
