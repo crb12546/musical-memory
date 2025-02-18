@@ -26,11 +26,6 @@ export default function App() {
   const [showCandidateForm, setShowCandidateForm] = useState(false)
 
   const [selectedProject, setSelectedProject] = useState<Project | null>(null)
-  const [candidates, setCandidates] = useState<Candidate[]>([])
-  const [resumes, setResumes] = useState<Resume[]>([])
-  const [interviews, setInterviews] = useState<Interview[]>([])
-  const [projects, setProjects] = useState<Project[]>([])
-
   const { data: candidates = [] } = useSWR<Candidate[]>('/api/candidates', () => api.getCandidates());
   const { data: resumes = [] } = useSWR<Resume[]>('/api/resumes', () => api.getResumes());
   const { data: projects = [] } = useSWR<Project[]>('/api/projects', () => api.getProjects());
