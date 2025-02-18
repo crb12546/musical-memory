@@ -24,6 +24,11 @@ function AppContent() {
   const [showProjectForm, setShowProjectForm] = useState(false)
   const [showCandidateForm, setShowCandidateForm] = useState(false)
 
+  const { data: candidates = [], mutate: mutateCandidates } = useSWR<Candidate[]>('/candidates', () => api.getCandidates())
+  const { data: resumes = [], mutate: mutateResumes } = useSWR<Resume[]>('/resumes', () => api.getResumes())
+  const { data: projects = [], mutate: mutateProjects } = useSWR<Project[]>('/projects', () => api.getProjects())
+  const { data: interviews = [], mutate: mutateInterviews } = useSWR<Interview[]>('/interviews', () => api.getInterviews())
+
   const [selectedProject, setSelectedProject] = useState<Project | null>(null)
   const { data: candidates = [], mutate: mutateCandidates } = useSWR<Candidate[]>('/api/candidates', () => api.getCandidates());
   const { data: resumes = [], mutate: mutateResumes } = useSWR<Resume[]>('/api/resumes', () => api.getResumes());
