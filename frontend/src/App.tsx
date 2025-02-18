@@ -52,16 +52,16 @@ export default function App() {
       if (result.status === 'fulfilled') {
         switch(index) {
           case 0:
-            updateCandidates(result.value);
+            updateCandidates(result.value as Candidate[]);
             break;
           case 1:
-            updateResumes(result.value);
+            updateResumes(result.value as Resume[]);
             break;
           case 2:
-            updateProjects(result.value);
+            updateProjects(result.value as Project[]);
             break;
           case 3:
-            updateInterviews(result.value);
+            updateInterviews(result.value as Interview[]);
             break;
         }
       } else {
