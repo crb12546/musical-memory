@@ -1,3 +1,4 @@
+import * as React from "react";
 import { useState } from "react";
 import { Button } from "./button";
 import { Input } from "./input";
@@ -19,40 +20,46 @@ export function InterviewScheduler({
 }) {
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const candidateId = formData.get('candidate_id') as string;
+    const scheduledTime = formData.get('scheduled_time') as string;
+    const status = formData.get('status') as string || 'scheduled';
+    const feedback = formData.get('feedback') as string;
+    const rating = formData.get('rating') as string;
+    const interviewType = formData.get('interview_type') as string;
+    
+    if (!candidateId) {
+      toast.error("请选择候选人");
+      return;
+    }
+    
+    if (!scheduledTime) {
+      toast.error("请选择面试时间");
+      return;
+    }
+
+    if (status === 'completed' && !rating) {
+      toast.error("已完成的面试必须提供评分");
+      return;
+    }
+
+    if (status === 'completed' && !feedback) {
+      toast.error("已完成的面试必须提供反馈");
+      return;
+    }
+
     setLoading(true);
-
     try {
-      const formData = new FormData(e.currentTarget);
-      const status = formData.get('status') as string || 'scheduled';
-      const feedback = formData.get('feedback') as string;
-      const rating = formData.get('rating') as string;
-      const interviewType = formData.get('interview_type') as string;
-      const scheduledTime = formData.get('scheduled_time') as string;
-
-      if (!scheduledTime) {
-        throw new Error('请选择面试时间');
-      }
-
-      if (status === 'completed' && !rating) {
-        throw new Error('已完成的面试必须提供评分');
-      }
-
-      if (status === 'completed' && !feedback) {
-        throw new Error('已完成的面试必须提供反馈');
-      }
-
       const interviewData = {
         project_id: project.id,
-        candidate_id: formData.get('candidate_id') as string,
-        scheduled_time: new Date(formData.get('scheduled_time') as string).toISOString(),
+        candidate_id: candidateId,
+        scheduled_time: new Date(scheduledTime).toISOString(),
         status,
-        feedback: feedback ? JSON.stringify({
-          type: interviewType,
-          rating: parseInt(rating || '0', 10),
-          comments: feedback
-        }) : undefined
+        interview_type: interviewType,
+        rating: rating ? parseInt(rating, 10) : undefined,
+        feedback: feedback || undefined
       };
 
       await api.createInterview(interviewData);

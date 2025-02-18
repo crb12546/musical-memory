@@ -19,27 +19,33 @@ export function ResumeUpload({
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!selectedFiles) return;
-
+    if (!selectedFiles) {
+      toast.error("请选择文件");
+      return;
+    }
+    
     const formData = new FormData(e.currentTarget);
     const candidateId = formData.get('candidateId') as string;
-    
+    if (!candidateId) {
+      toast.error("请选择候选人");
+      return;
+    }
+
     setLoading(true);
     try {
       const files = Array.from(selectedFiles);
       for (const file of files) {
+        if (!file.type.includes('pdf') && !file.type.includes('doc')) {
+          throw new Error('仅支持 PDF 和 Word 文档');
+        }
         await api.uploadResume(file, candidateId);
       }
-      
       toast.success("简历上传成功");
       setSelectedFiles(null);
-
-
       e.currentTarget.reset();
       onSuccess?.();
     } catch (error) {
-      toast.error("简历上传失败");
-      console.error('Upload error:', error);
+      toast.error(`上传失败: ${(error as Error).message}`);
     } finally {
       setLoading(false);
     }

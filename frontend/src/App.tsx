@@ -13,7 +13,9 @@ import { Badge } from './components/ui/badge'
 import { api } from './lib/api'
 import type { Candidate, Project, Interview, Resume, Tag } from './lib/types'
 import { cn } from './lib/utils'
+import * as React from 'react'
 import { useState, useEffect } from 'react'
+import { toast } from 'sonner'
 
 export default function App() {
   const [activeSection, setActiveSection] = useState<string>("project-list")
@@ -25,6 +27,42 @@ export default function App() {
   const [interviews, setInterviews] = useState<Interview[]>([])
   const [projects, setProjects] = useState<Project[]>([])
 
+  const updateCandidates = (data: Candidate[]) => setCandidates(data);
+  const updateResumes = (data: Resume[]) => setResumes(data);
+  const updateInterviews = (data: Interview[]) => setInterviews(data);
+  const updateProjects = (data: Project[]) => setProjects(data);
+
+  const refreshData = React.useCallback(async () => {
+    try {
+      const [candidatesData, resumesData, projectsData, interviewsData] = 
+        await Promise.all([
+          api.getCandidates(),
+          api.getResumes(),
+          api.getProjects(),
+          api.getInterviews()
+        ]);
+      
+      updateCandidates(candidatesData as Candidate[]);
+      updateResumes(resumesData as Resume[]);
+      updateProjects(projectsData as Project[]);
+      updateInterviews(interviewsData as Interview[]);
+    } catch (error) {
+      toast.error("数据刷新失败：" + (error as Error).message);
+    }
+  }, []);
+
+  // Initial data load
+  useEffect(() => {
+    refreshData();
+  }, [refreshData]);
+
+  // Auto refresh every 30 seconds
+  useEffect(() => {
+    const interval = setInterval(refreshData, 30000);
+    return () => clearInterval(interval);
+  }, [refreshData]);
+
+  // Legacy effect for backward compatibility during transition
   useEffect(() => {
     Promise.all([
       api.getCandidates(),
@@ -32,10 +70,10 @@ export default function App() {
       api.getProjects(),
       api.getInterviews()
     ]).then(([candidatesData, resumesData, projectsData, interviewsData]) => {
-      setCandidates(candidatesData)
-      setResumes(resumesData)
-      setProjects(projectsData)
-      setInterviews(interviewsData)
+      updateCandidates(candidatesData as Candidate[])
+      updateResumes(resumesData as Resume[])
+      updateProjects(projectsData as Project[])
+      updateInterviews(interviewsData as Interview[])
     })
   }, [])
 
@@ -71,7 +109,7 @@ export default function App() {
         return (
           <Section>
             <Title>创建招聘需求</Title>
-            <ProjectForm onSuccess={() => api.getProjects().then(setProjects)} />
+            <ProjectForm onSuccess={() => api.getProjects().then(data => updateProjects(data))} />
           </Section>
         )
       case "resume-upload":
@@ -80,7 +118,7 @@ export default function App() {
             <Title>简历录入</Title>
             <ResumeUpload 
               candidates={candidates} 
-              onSuccess={() => api.getResumes().then(setResumes)} 
+              onSuccess={() => api.getResumes().then(data => updateResumes(data))} 
             />
           </Section>
         )
@@ -141,7 +179,7 @@ export default function App() {
                 project={selectedProject}
                 candidates={candidates}
                 onSuccess={() => {
-                  api.getInterviews().then(setInterviews);
+                  api.getInterviews().then(data => updateInterviews(data));
                   setSelectedProject(null);
                 }}
               />
@@ -163,6 +201,30 @@ export default function App() {
             )}
           </Section>
         )
+      case "interview-list":
+        return (
+          <Section>
+            <Title>面试列表</Title>
+            <div className="space-y-6">
+              {interviews.map(interview => {
+                const candidate = candidates.find(c => c.id === interview.candidate_id);
+                const project = projects.find(p => p.id === interview.project_id);
+                return (
+                  <div key={interview.id} className="border rounded-lg p-4">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="font-medium">{candidate?.name}</h3>
+                        <p className="text-sm text-gray-500">{project?.title}</p>
+                      </div>
+                      <Badge>{interview.status}</Badge>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </Section>
+        );
+
       case "interview-feedback":
         return (
           <Section>
@@ -232,7 +294,7 @@ export default function App() {
               onSuccess={() => {
                 setShowProjectForm(false)
                 setSelectedProject(null)
-                api.getProjects().then(setProjects)
+                api.getProjects().then(data => updateProjects(data))
               }} 
             />
           </DialogContent>
@@ -250,7 +312,7 @@ export default function App() {
               candidates={candidates}
               onSuccess={() => {
                 setSelectedProject(null)
-                api.getInterviews().then(setInterviews)
+                api.getInterviews().then(data => updateInterviews(data))
               }}
             />
           </DialogContent>

@@ -40,6 +40,7 @@ export const navigationItems: NavigationItem[] = [
     label: "面试管理",
     icon: <Calendar className="w-5 h-5 text-gray-500" />,
     subItems: [
+      { id: "interview-list", label: "面试列表" },
       { id: "interview-schedule", label: "面试安排" },
       { id: "interview-feedback", label: "面试反馈" },
     ],
