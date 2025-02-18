@@ -29,6 +29,20 @@ export function InterviewScheduler({
     const feedback = formData.get('feedback') as string;
     const rating = formData.get('rating') as string;
     const interviewType = formData.get('interview_type') as string;
+
+    // Validate datetime format
+    const dateRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?$/;
+    if (!dateRegex.test(scheduledTime)) {
+      toast.error("请使用正确的日期时间格式 (YYYY-MM-DDTHH:mm:ss)");
+      return;
+    }
+
+    // Ensure time is in the future
+    const selectedTime = new Date(scheduledTime);
+    if (selectedTime <= new Date()) {
+      toast.error("面试时间必须在当前时间之后");
+      return;
+    }
     
     if (!candidateId) {
       toast.error("请选择候选人");
@@ -55,7 +69,7 @@ export function InterviewScheduler({
       const interviewData = {
         project_id: project.id,
         candidate_id: candidateId,
-        scheduled_time: new Date(scheduledTime).toISOString(),
+        scheduled_time: scheduledTime.includes(':ss') ? scheduledTime : `${scheduledTime}:00`,
         status,
         interview_type: interviewType,
         rating: rating ? parseInt(rating, 10) : undefined,
@@ -99,7 +113,7 @@ export function InterviewScheduler({
             name="scheduled_time"
             type="datetime-local"
             required
-            min={new Date().toISOString().split('.')[0]}
+            min={new Date().toISOString().slice(0, 16)}
           />
         </div>
 
