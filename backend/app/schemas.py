@@ -154,7 +154,8 @@ class InterviewCreate(InterviewBase):
 
 class Interview(InterviewBase):
     id: UUID
-    feedback: Optional[InterviewFeedback] = None
+    feedback: Optional[dict] = None
+    parsed_content: Optional[dict] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
     
