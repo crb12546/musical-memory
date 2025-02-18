@@ -3,7 +3,8 @@ const API_URL = import.meta.env.VITE_API_URL || 'https://musical-memory-api-v1.f
 const defaultHeaders: Record<string, string> = {
   'Accept': 'application/json',
   'Content-Type': 'application/json',
-  'Origin': window.location.origin
+  'Origin': window.location.origin,
+  'X-Requested-With': 'XMLHttpRequest'
 };
 
 export type OnSuccessCallback<T> = (value: T[]) => void | Promise<void>;
@@ -140,10 +141,17 @@ export const api = {
 
   async getResumes(): Promise<Resume[]> {
     const response = await fetch(`${API_URL}/api/resumes/`, {
-      headers: defaultHeaders
+      method: 'GET',
+      headers: {
+        ...defaultHeaders,
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Origin': window.location.origin
+      },
+      credentials: 'include'
     });
     if (!response.ok) {
-      const error = await response.json();
+      const error = await response.json().catch(() => ({ detail: '服务器响应格式错误' }));
       throw new Error(error.detail || `获取简历失败: HTTP错误 ${response.status}`);
     }
     return response.json();

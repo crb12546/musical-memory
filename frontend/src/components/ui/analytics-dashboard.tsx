@@ -21,8 +21,10 @@ export function AnalyticsDashboard({ projects, interviews }: AnalyticsDashboardP
       try {
         const resumesData = await api.getResumes();
         setResumes(resumesData);
+        setError(null); // Clear any previous errors
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : '获取数据失败，请稍后重试';
+        console.error('简历数据加载失败:', err);
         setError(errorMessage);
       } finally {
         setLoading(false);
@@ -135,6 +137,15 @@ export function AnalyticsDashboard({ projects, interviews }: AnalyticsDashboardP
   const conversion = calculateInterviewConversion();
   const cycle = calculateRecruitmentCycle();
 
+  if (!Array.isArray(projects) || !Array.isArray(interviews)) {
+    return (
+      <div className="p-4 border border-yellow-200 rounded-md bg-yellow-50 text-yellow-700">
+        <h3 className="text-lg font-medium mb-2">数据加载中</h3>
+        <p>请稍候...</p>
+      </div>
+    );
+  }
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
@@ -150,6 +161,12 @@ export function AnalyticsDashboard({ projects, interviews }: AnalyticsDashboardP
         <h3 className="text-lg font-medium mb-2">数据加载失败</h3>
         <p>{error}</p>
         <p className="text-sm mt-2">请检查网络连接并刷新页面重试</p>
+        <button 
+          onClick={() => window.location.reload()}
+          className="mt-4 px-4 py-2 bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors"
+        >
+          刷新页面
+        </button>
       </div>
     );
   }
