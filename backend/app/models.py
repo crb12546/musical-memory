@@ -112,6 +112,7 @@ class Interview(Base):
     culture_fit_score = Column(Integer, nullable=True)
     overall_rating = Column(Float, nullable=True)
     feedback = Column(String, nullable=True)  # JSON string for detailed feedback
+    parsed_content = Column(String, nullable=True)  # JSON string for parsed content
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, onupdate=datetime.utcnow)
     
