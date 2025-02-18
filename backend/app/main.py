@@ -19,7 +19,7 @@ app.add_middleware(
     allow_origins=["https://musical-memory-frontend-v1.fly.dev", "http://localhost:5173"],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"],
-    allow_headers=["*"],
+    allow_headers=["Content-Type", "Accept", "Authorization", "Origin", "X-Requested-With", "Access-Control-Allow-Origin", "Access-Control-Allow-Headers", "Access-Control-Allow-Methods"],
     expose_headers=["Content-Length", "Content-Type", "Access-Control-Allow-Origin"],
     max_age=3600
 )
