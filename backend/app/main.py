@@ -18,9 +18,9 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=["https://musical-memory-frontend-v1.fly.dev", "http://localhost:5173"],
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-    expose_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Content-Type", "Accept", "Authorization", "Origin", "X-Requested-With"],
+    expose_headers=["Content-Length", "Content-Type"],
     max_age=3600
 )
 
