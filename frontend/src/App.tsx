@@ -19,6 +19,7 @@ import { toast } from 'sonner'
 
 export default function App() {
   const [activeSection, setActiveSection] = useState<string>("project-list")
+  const [loading, setLoading] = useState(false)
   const [showProjectForm, setShowProjectForm] = useState(false)
 
   const [selectedProject, setSelectedProject] = useState<Project | null>(null)
@@ -33,39 +34,39 @@ export default function App() {
   const updateProjects = (data: Project[]) => setProjects(data);
 
   const refreshData = React.useCallback(async () => {
-    const results = await Promise.allSettled<[
-      Promise<Candidate[]>,
-      Promise<Resume[]>,
-      Promise<Project[]>,
-      Promise<Interview[]>
-    ]>([
-      api.getCandidates(),
-      api.getResumes(),
-      api.getProjects(),
-      api.getInterviews()
-    ]);
+    try {
+      const results = await Promise.allSettled([
+        api.getCandidates() as Promise<Candidate[]>,
+        api.getResumes() as Promise<Resume[]>,
+        api.getProjects() as Promise<Project[]>,
+        api.getInterviews() as Promise<Interview[]>
+      ]);
     
     results.forEach((result, index) => {
       if (result.status === 'fulfilled') {
         switch(index) {
           case 0:
-            updateCandidates(result.value as Candidate[]);
+            updateCandidates(result.value);
             break;
           case 1:
-            updateResumes(result.value as Resume[]);
+            updateResumes(result.value);
             break;
           case 2:
-            updateProjects(result.value as Project[]);
+            updateProjects(result.value);
             break;
           case 3:
-            updateInterviews(result.value as Interview[]);
+            updateInterviews(result.value);
             break;
         }
       } else {
         console.error(`Failed to fetch data for index ${index}:`, result.reason);
-        // Individual fetch failures won't block other updates
+        toast.error(`数据刷新失败：${result.reason}`);
       }
     });
+    } catch (error) {
+      console.error('Refresh failed:', error);
+      toast.error(`数据刷新失败：${(error as Error).message}`);
+    }
   }, []);
 
   // Initial data load with loading state
@@ -87,13 +88,18 @@ export default function App() {
     return () => clearInterval(interval);
   }, [refreshData]);
 
-  // Memoize update functions to prevent unnecessary re-renders
+  // Use memoized update functions in refreshData
   const memoizedUpdateFunctions = React.useMemo(() => ({
     updateCandidates,
     updateResumes,
     updateProjects,
     updateInterviews
   }), []);
+
+  React.useEffect(() => {
+    // Update refreshData dependencies to use memoized functions
+    refreshData();
+  }, [memoizedUpdateFunctions]);
 
   const renderContent = () => {
     const Section = ({ children, className }: { children: React.ReactNode, className?: string }) => (
