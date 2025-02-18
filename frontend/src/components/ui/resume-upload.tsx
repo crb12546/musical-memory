@@ -33,6 +33,11 @@ export function ResumeUpload({
 
     setLoading(true);
     try {
+      if (!candidateId) {
+        toast.error("请选择候选人");
+        return;
+      }
+
       const files = Array.from(selectedFiles);
       for (const file of files) {
         await api.uploadResume(file, candidateId);
@@ -42,8 +47,7 @@ export function ResumeUpload({
       e.currentTarget.reset();
       onSuccess?.();
     } catch (error) {
-      const errorMessage = (error as Error).message;
-      toast.error(errorMessage.includes('HTTP错误 404') ? '候选人不存在' : errorMessage);
+      toast.error((error as Error).message);
     } finally {
       setLoading(false);
     }

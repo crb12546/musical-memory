@@ -101,7 +101,8 @@ export const api = {
   // Resumes
   async uploadResume(file: File, candidateId: string): Promise<Resume> {
     // Validate file type
-    if (!file.type.includes('pdf') && !file.type.includes('msword') && !file.type.includes('openxmlformats-officedocument.wordprocessingml')) {
+    const validTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+    if (!validTypes.some(type => file.type === type)) {
       throw new Error('仅支持 PDF 和 Word 文档');
     }
 
@@ -116,6 +117,9 @@ export const api = {
 
     if (!response.ok) {
       const error = await response.json();
+      if (response.status === 404) {
+        throw new Error('候选人不存在');
+      }
       throw new Error(error.detail || `上传失败: HTTP错误 ${response.status}`);
     }
 
