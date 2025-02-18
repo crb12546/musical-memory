@@ -1,4 +1,6 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_URL = import.meta.env.VITE_API_URL || 'https://musical-memory-api-v1.fly.dev';
+
+export type OnSuccessCallback<T> = (value: T[]) => void | PromiseLike<void>;
 
 export interface Candidate {
   id: string;
@@ -95,6 +97,10 @@ export const api = {
 
   async getCandidates(): Promise<Candidate[]> {
     const response = await fetch(`${API_URL}/api/candidates/`);
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || `获取候选人失败: HTTP错误 ${response.status}`);
+    }
     return response.json();
   },
 
@@ -108,11 +114,19 @@ export const api = {
       method: 'POST',
       body: formData,
     });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || `上传简历失败: HTTP错误 ${response.status}`);
+    }
     return response.json();
   },
 
   async getResumes(): Promise<Resume[]> {
     const response = await fetch(`${API_URL}/api/resumes/`);
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || `获取简历失败: HTTP错误 ${response.status}`);
+    }
     return response.json();
   },
 
@@ -168,7 +182,10 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     });
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || `创建需求失败: HTTP错误 ${response.status}`);
+    }
     return response.json();
   },
 
@@ -178,13 +195,19 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     });
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || `创建面试失败: HTTP错误 ${response.status}`);
+    }
     return response.json();
   },
 
   async getInterviews(): Promise<Interview[]> {
     const response = await fetch(`${API_URL}/api/interviews/`);
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || `获取面试列表失败: HTTP错误 ${response.status}`);
+    }
     return response.json();
   },
 
@@ -194,7 +217,10 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     });
-    if (!response.ok) throw new Error(`Failed to update interview: ${response.status}`);
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || `更新面试失败: HTTP错误 ${response.status}`);
+    }
     return response.json();
   }
 };
