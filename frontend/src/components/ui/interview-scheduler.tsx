@@ -69,11 +69,13 @@ export function InterviewScheduler({
       const interviewData = {
         project_id: project.id,
         candidate_id: candidateId,
-        scheduled_time: scheduledTime.includes(':ss') ? scheduledTime : `${scheduledTime}:00`,
+        scheduled_time: scheduledTime.includes('ss') ? scheduledTime : `${scheduledTime}:00`,
         status,
         interview_type: interviewType,
         rating: rating ? parseInt(rating, 10) : undefined,
-        feedback: feedback || undefined
+        feedback: feedback || undefined,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       };
 
       await api.createInterview(interviewData);
