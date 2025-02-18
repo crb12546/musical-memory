@@ -164,7 +164,7 @@ export const api = {
   async updateProject(id: string, data: Partial<Project>): Promise<Project> {
     const response = await fetch(`${API_URL}/api/projects/${id}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: defaultHeaders,
       body: JSON.stringify(data),
     });
     if (!response.ok) {
@@ -177,6 +177,7 @@ export const api = {
   async deleteProject(id: string): Promise<void> {
     const response = await fetch(`${API_URL}/api/projects/${id}`, {
       method: 'DELETE',
+      headers: defaultHeaders
     });
     if (!response.ok) {
       const error = await response.json();
@@ -187,7 +188,7 @@ export const api = {
   async createRequirement(data: Omit<Requirement, 'id' | 'created_at' | 'tags'>): Promise<Requirement> {
     const response = await fetch(`${API_URL}/api/requirements/`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: defaultHeaders,
       body: JSON.stringify(data),
     });
     if (!response.ok) {
@@ -200,7 +201,7 @@ export const api = {
   async createInterview(data: InterviewCreate): Promise<Interview> {
     const response = await fetch(`${API_URL}/api/interviews/`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: defaultHeaders,
       body: JSON.stringify(data),
     });
     if (!response.ok) {
@@ -211,7 +212,9 @@ export const api = {
   },
 
   async getInterviews(): Promise<Interview[]> {
-    const response = await fetch(`${API_URL}/api/interviews/`);
+    const response = await fetch(`${API_URL}/api/interviews/`, {
+      headers: defaultHeaders
+    });
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.detail || `获取面试列表失败: HTTP错误 ${response.status}`);
@@ -222,7 +225,7 @@ export const api = {
   async updateInterview(id: string, data: Partial<Interview>): Promise<Interview> {
     const response = await fetch(`${API_URL}/api/interviews/${id}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: defaultHeaders,
       body: JSON.stringify(data)
     });
     if (!response.ok) {
