@@ -1,5 +1,11 @@
 const API_URL = 'https://musical-memory-api-v1.fly.dev';
 
+const defaultHeaders = {
+  'Accept': 'application/json',
+  'Content-Type': 'application/json',
+  'Origin': 'https://musical-memory-frontend-v1.fly.dev'
+};
+
 export type OnSuccessCallback<T> = (value: T[]) => void | PromiseLike<void>;
 
 export interface Candidate {
@@ -96,7 +102,9 @@ export const api = {
   },
 
   async getCandidates(): Promise<Candidate[]> {
-    const response = await fetch(`${API_URL}/api/candidates/`);
+    const response = await fetch(`${API_URL}/api/candidates/`, {
+      headers: defaultHeaders
+    });
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.detail || `获取候选人失败: HTTP错误 ${response.status}`);
