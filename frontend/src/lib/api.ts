@@ -5,6 +5,7 @@ export interface Candidate {
   name: string;
   email: string;
   phone: string;
+  state: 'available' | 'interviewing' | 'hired';
   created_at: string;
 }
 
