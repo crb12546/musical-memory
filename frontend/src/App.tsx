@@ -35,7 +35,13 @@ export default function App() {
 
   const refreshData = React.useCallback(async () => {
     try {
-      const results = await Promise.allSettled([
+      type ApiResults = [
+        Promise<Candidate[]>,
+        Promise<Resume[]>,
+        Promise<Project[]>,
+        Promise<Interview[]>
+      ];
+      const results = await Promise.allSettled<ApiResults>([
         api.getCandidates(),
         api.getResumes(),
         api.getProjects(),
@@ -125,7 +131,7 @@ export default function App() {
             </Section>
             <Section>
               <Title>数据分析</Title>
-              <AnalyticsDashboard projects={projects} interviews={interviews} />
+              <AnalyticsDashboard />
             </Section>
           </div>
         )
