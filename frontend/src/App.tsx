@@ -26,10 +26,15 @@ export default function App() {
   const [showCandidateForm, setShowCandidateForm] = useState(false)
 
   const [selectedProject, setSelectedProject] = useState<Project | null>(null)
-  const { data: candidates = [] } = useSWR<Candidate[]>('/api/candidates', () => api.getCandidates());
-  const { data: resumes = [] } = useSWR<Resume[]>('/api/resumes', () => api.getResumes());
-  const { data: projects = [] } = useSWR<Project[]>('/api/projects', () => api.getProjects());
-  const { data: interviews = [] } = useSWR<Interview[]>('/api/interviews', () => api.getInterviews());
+  const { data: candidates = [], mutate: mutateCandidates } = useSWR<Candidate[]>('/api/candidates', () => api.getCandidates());
+  const { data: resumes = [], mutate: mutateResumes } = useSWR<Resume[]>('/api/resumes', () => api.getResumes());
+  const { data: projects = [], mutate: mutateProjects } = useSWR<Project[]>('/api/projects', () => api.getProjects());
+  const { data: interviews = [], mutate: mutateInterviews } = useSWR<Interview[]>('/api/interviews', () => api.getInterviews());
+
+  const setCandidates = (data: Candidate[]) => mutateCandidates(data);
+  const setResumes = (data: Resume[]) => mutateResumes(data);
+  const setProjects = (data: Project[]) => mutateProjects(data);
+  const setInterviews = (data: Interview[]) => mutateInterviews(data);
 
   const renderContent = () => {
     const Section = ({ children, className }: { children: React.ReactNode, className?: string }) => (
