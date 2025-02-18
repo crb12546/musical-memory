@@ -33,32 +33,52 @@ export default function App() {
   const updateProjects = (data: Project[]) => setProjects(data);
 
   const refreshData = React.useCallback(async () => {
-    try {
-      const [candidatesData, resumesData, projectsData, interviewsData] = 
-        await Promise.all([
-          api.getCandidates(),
-          api.getResumes(),
-          api.getProjects(),
-          api.getInterviews()
-        ]);
-      
-      updateCandidates(candidatesData as Candidate[]);
-      updateResumes(resumesData as Resume[]);
-      updateProjects(projectsData as Project[]);
-      updateInterviews(interviewsData as Interview[]);
-    } catch (error) {
-      toast.error("数据刷新失败：" + (error as Error).message);
-    }
+    const results = await Promise.allSettled([
+      api.getCandidates(),
+      api.getResumes(),
+      api.getProjects(),
+      api.getInterviews()
+    ]);
+    
+    results.forEach((result, index) => {
+      if (result.status === 'fulfilled') {
+        switch(index) {
+          case 0:
+            updateCandidates(result.value as Candidate[]);
+            break;
+          case 1:
+            updateResumes(result.value as Resume[]);
+            break;
+          case 2:
+            updateProjects(result.value as Project[]);
+            break;
+          case 3:
+            updateInterviews(result.value as Interview[]);
+            break;
+        }
+      } else {
+        console.error(`Failed to fetch data for index ${index}:`, result.reason);
+        // Individual fetch failures won't block other updates
+      }
+    });
   }, []);
 
-  // Initial data load
+  // Initial data load with loading state
   useEffect(() => {
-    refreshData();
+    setLoading(true);
+    refreshData().finally(() => setLoading(false));
   }, [refreshData]);
 
-  // Auto refresh every 30 seconds
+  // Auto refresh with error handling and loading state
   useEffect(() => {
-    const interval = setInterval(refreshData, 30000);
+    const interval = setInterval(async () => {
+      try {
+        await refreshData();
+      } catch (error) {
+        console.error('Auto-refresh failed:', error);
+        // Don't show toast for background refresh errors
+      }
+    }, 15000); // Reduced to 15 seconds for better real-time updates
     return () => clearInterval(interval);
   }, [refreshData]);
 
