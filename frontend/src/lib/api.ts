@@ -1,6 +1,6 @@
 const API_URL = 'https://musical-memory-api-v1.fly.dev';
 
-const defaultHeaders = {
+const defaultHeaders: Record<string, string> = {
   'Accept': 'application/json',
   'Content-Type': 'application/json',
   'Origin': 'https://musical-memory-frontend-v1.fly.dev'
@@ -118,7 +118,7 @@ export const api = {
     formData.append('file', file);
     formData.append('candidate_id', candidateId);
 
-    const headers = { ...defaultHeaders };
+    const headers: Partial<typeof defaultHeaders> = { ...defaultHeaders };
     delete headers['Content-Type']; // Let browser set correct content-type for FormData
 
     const response = await fetch(`${API_URL}/api/resumes/`, {
