@@ -33,34 +33,36 @@ export function InterviewScheduler({
     // Validate datetime format
     const dateRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?$/;
     if (!dateRegex.test(scheduledTime)) {
-      toast.error("请使用正确的日期时间格式 (YYYY-MM-DDTHH:mm:ss)");
+      toast.error("日期时间格式错误：请使用正确的格式（例如：2025-02-20 14:00）");
       return;
     }
 
     // Ensure time is in the future
     const selectedTime = new Date(scheduledTime);
-    if (selectedTime <= new Date()) {
-      toast.error("面试时间必须在当前时间之后");
+    const now = new Date();
+    if (selectedTime <= now) {
+      const minTime = new Date(now.getTime() + 30 * 60000); // 30 minutes from now
+      toast.error(`面试时间无效：请选择未来时间（至少 ${minTime.toLocaleTimeString('zh-CN')} 之后）`);
       return;
     }
     
     if (!candidateId) {
-      toast.error("请选择候选人");
+      toast.error("请选择候选人：从下拉列表中选择一位候选人");
       return;
     }
     
     if (!scheduledTime) {
-      toast.error("请选择面试时间");
+      toast.error("请选择面试时间：点击日历图标选择合适的时间");
       return;
     }
 
     if (status === 'completed' && !rating) {
-      toast.error("已完成的面试必须提供评分");
+      toast.error("评分缺失：已完成的面试必须提供评分（1-5星）");
       return;
     }
 
     if (status === 'completed' && !feedback) {
-      toast.error("已完成的面试必须提供反馈");
+      toast.error("反馈缺失：已完成的面试必须提供详细的反馈意见");
       return;
     }
 
@@ -73,9 +75,7 @@ export function InterviewScheduler({
         status,
         interview_type: interviewType,
         rating: rating ? parseInt(rating, 10) : undefined,
-        feedback: feedback || undefined,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        feedback: feedback || undefined
       };
 
       await api.createInterview(interviewData);

@@ -103,7 +103,7 @@ export const api = {
     // Validate file type
     const validTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
     if (!validTypes.some(type => file.type === type)) {
-      throw new Error('仅支持 PDF 和 Word 文档');
+      throw new Error('文件类型不支持：请上传 PDF 或 Word 文档（.pdf, .doc, .docx）');
     }
 
     const formData = new FormData();
