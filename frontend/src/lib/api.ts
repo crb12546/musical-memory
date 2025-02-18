@@ -1,9 +1,9 @@
-const API_URL = 'https://musical-memory-api-v1.fly.dev';
+const API_URL = import.meta.env.VITE_API_URL || 'https://musical-memory-api-v1.fly.dev';
 
 const defaultHeaders: Record<string, string> = {
   'Accept': 'application/json',
   'Content-Type': 'application/json',
-  'Origin': 'https://musical-memory-frontend-v1.fly.dev'
+  'Origin': window.location.origin
 };
 
 export type OnSuccessCallback<T> = (value: T[]) => void | PromiseLike<void>;
@@ -27,7 +27,7 @@ export interface Resume {
   candidate_id: string;
   file_path: string;
   file_type: string;
-  parsed_content: string | null;
+  parsed_content: any | null;
   created_at: string;
   tags: Tag[];
 }
@@ -83,6 +83,7 @@ export interface Interview {
   interview_type: string;
   status: string;
   feedback?: InterviewFeedback;
+  parsed_content?: any;
   created_at: string;
   updated_at?: string;
 }
