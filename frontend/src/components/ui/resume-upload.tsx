@@ -35,9 +35,6 @@ export function ResumeUpload({
     try {
       const files = Array.from(selectedFiles);
       for (const file of files) {
-        if (!file.type.includes('pdf') && !file.type.includes('doc')) {
-          throw new Error('仅支持 PDF 和 Word 文档');
-        }
         await api.uploadResume(file, candidateId);
       }
       toast.success("简历上传成功");
@@ -45,7 +42,8 @@ export function ResumeUpload({
       e.currentTarget.reset();
       onSuccess?.();
     } catch (error) {
-      toast.error(`上传失败: ${(error as Error).message}`);
+      const errorMessage = (error as Error).message;
+      toast.error(errorMessage.includes('HTTP错误 404') ? '候选人不存在' : errorMessage);
     } finally {
       setLoading(false);
     }

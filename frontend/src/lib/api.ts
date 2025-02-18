@@ -100,6 +100,11 @@ export const api = {
 
   // Resumes
   async uploadResume(file: File, candidateId: string): Promise<Resume> {
+    // Validate file type
+    if (!file.type.includes('pdf') && !file.type.includes('msword') && !file.type.includes('openxmlformats-officedocument.wordprocessingml')) {
+      throw new Error('仅支持 PDF 和 Word 文档');
+    }
+
     const formData = new FormData();
     formData.append('file', file);
     formData.append('candidate_id', candidateId);
@@ -108,8 +113,15 @@ export const api = {
       method: 'POST',
       body: formData,
     });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || `上传失败: HTTP错误 ${response.status}`);
+    }
+
     return response.json();
-  },
+  },</old_str>
+
 
   async getResumes(): Promise<Resume[]> {
     const response = await fetch(`${API_URL}/api/resumes/`);
