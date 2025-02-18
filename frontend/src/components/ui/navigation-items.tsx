@@ -1,5 +1,5 @@
 import * as React from "react";
-import { FileText, Search, Briefcase, Calendar, UserCheck } from "lucide-react";
+import { FileText, Briefcase, Calendar } from "lucide-react";
 
 export interface NavigationItem {
   id: string;
@@ -19,19 +19,12 @@ export const navigationItems: NavigationItem[] = [
     ],
   },
   {
-    id: "resume-management",
-    label: "简历管理",
+    id: "candidates",
+    label: "候选人管理",
     icon: <FileText className="w-5 h-5 text-gray-500" />,
     subItems: [
-      { id: "resume-upload", label: "简历录入" },
+      { id: "resume-upload", label: "简历上传" },
       { id: "resume-view", label: "简历查看" },
-    ],
-  },
-  {
-    id: "screening",
-    label: "简历筛选",
-    icon: <Search className="w-5 h-5 text-gray-500" />,
-    subItems: [
       { id: "talent-matching", label: "人才匹配" },
     ],
   },
@@ -43,10 +36,5 @@ export const navigationItems: NavigationItem[] = [
       { id: "interview-schedule", label: "面试安排" },
       { id: "interview-feedback", label: "面试反馈" },
     ],
-  },
-  {
-    id: "onboarding",
-    label: "入职管理",
-    icon: <UserCheck className="w-5 h-5 text-gray-500" />,
   },
 ];

@@ -6,23 +6,20 @@ import { api } from "../../lib/api";
 import { format } from "date-fns";
 import { ArrowDownIcon, ArrowUpIcon, MinusIcon } from "lucide-react";
 
-export function AnalyticsDashboard() {
-  const [projects, setProjects] = React.useState<Project[]>([]);
-  const [interviews, setInterviews] = React.useState<Interview[]>([]);
+interface AnalyticsDashboardProps {
+  projects: Project[];
+  interviews: Interview[];
+}
+
+export function AnalyticsDashboard({ projects, interviews }: AnalyticsDashboardProps) {
   const [resumes, setResumes] = React.useState<Resume[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
-    const fetchData = async () => {
+    const fetchResumes = async () => {
       try {
-        const [projectsData, interviewsData, resumesData] = await Promise.all([
-          api.getProjects(),
-          api.getInterviews(),
-          api.getResumes()
-        ]);
-        setProjects(projectsData);
-        setInterviews(interviewsData);
+        const resumesData = await api.getResumes();
         setResumes(resumesData);
       } catch (err) {
         setError((err as Error).message);
@@ -30,7 +27,7 @@ export function AnalyticsDashboard() {
         setLoading(false);
       }
     };
-    fetchData();
+    fetchResumes();
   }, []);
   const getProjectStatus = (status: string) => {
     switch (status) {

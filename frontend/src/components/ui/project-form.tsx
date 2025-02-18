@@ -10,7 +10,7 @@ import { Textarea } from "./textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./form";
 import { api } from "../../lib/api";
-import type { Project } from "../../lib/api";
+import type { Project, OnSuccessCallback } from "../../lib/api";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./tooltip";
 import { Info } from "lucide-react";
@@ -73,7 +73,7 @@ export function ProjectForm({
   onSuccess 
 }: { 
   project?: Project | null;
-  onSuccess?: () => void;
+  onSuccess?: OnSuccessCallback<Project>;
 }) {
   const [loading, setLoading] = useState(false);
   const [responsibilities, setResponsibilities] = useState<string[]>(['负责核心系统架构设计和开发']);
@@ -134,7 +134,8 @@ export function ProjectForm({
         toast.success("招聘需求创建成功");
         form.reset();
       }
-      onSuccess?.();
+      const projects = await api.getProjects();
+      onSuccess?.(projects);
     } catch (error) {
       toast.error("创建失败：" + (error as Error).message);
     } finally {
