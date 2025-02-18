@@ -11,7 +11,7 @@ import { SidebarProvider, Sidebar, SidebarMenu } from './components/ui/sidebar'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './components/ui/dialog'
 import { Badge } from './components/ui/badge'
 import { api } from './lib/api'
-import type { Candidate, Project, Interview, Resume, Tag } from './lib/types'
+import type { Candidate, Project, Interview, Resume, Tag } from './lib/api'
 import { cn } from './lib/utils'
 import * as React from 'react'
 import { useState, useEffect } from 'react'
@@ -36,10 +36,10 @@ export default function App() {
   const refreshData = React.useCallback(async () => {
     try {
       const results = await Promise.allSettled([
-        api.getCandidates() as Promise<Candidate[]>,
-        api.getResumes() as Promise<Resume[]>,
-        api.getProjects() as Promise<Project[]>,
-        api.getInterviews() as Promise<Interview[]>
+        api.getCandidates(),
+        api.getResumes(),
+        api.getProjects(),
+        api.getInterviews()
       ]);
     
     results.forEach((result, index) => {
