@@ -31,10 +31,10 @@ export default function App() {
   const { data: projects = [], mutate: mutateProjects } = useSWR<Project[]>('/api/projects', () => api.getProjects());
   const { data: interviews = [], mutate: mutateInterviews } = useSWR<Interview[]>('/api/interviews', () => api.getInterviews());
 
-  const setCandidates = (data: Candidate[]) => mutateCandidates(data);
-  const setResumes = (data: Resume[]) => mutateResumes(data);
-  const setProjects = (data: Project[]) => mutateProjects(data);
-  const setInterviews = (data: Interview[]) => mutateInterviews(data);
+  const setCandidates = (data: Candidate[]) => { mutateCandidates(data); };
+  const setResumes = (data: Resume[]) => { mutateResumes(data); };
+  const setProjects = (data: Project[]) => { mutateProjects(data); };
+  const setInterviews = (data: Interview[]) => { mutateInterviews(data); };
 
   const renderContent = () => {
     const Section = ({ children, className }: { children: React.ReactNode, className?: string }) => (

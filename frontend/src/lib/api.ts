@@ -6,7 +6,7 @@ const defaultHeaders: Record<string, string> = {
   'Origin': window.location.origin
 };
 
-export type OnSuccessCallback<T> = (value: T[]) => void | PromiseLike<void>;
+export type OnSuccessCallback<T> = (value: T[]) => void;
 
 export interface Candidate {
   id: string;
