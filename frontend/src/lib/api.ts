@@ -118,8 +118,10 @@ export const api = {
     formData.append('file', file);
     formData.append('candidate_id', candidateId);
 
-    const headers: Partial<typeof defaultHeaders> = { ...defaultHeaders };
-    delete headers['Content-Type']; // Let browser set correct content-type for FormData
+    const headers: HeadersInit = {
+      'Accept': 'application/json',
+      'Origin': 'https://musical-memory-frontend-v1.fly.dev'
+    };
 
     const response = await fetch(`${API_URL}/api/resumes/`, {
       method: 'POST',
