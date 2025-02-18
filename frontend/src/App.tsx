@@ -18,9 +18,10 @@ import { api } from './lib/api'
 import type { Candidate, Project, Interview, Resume, Tag } from './lib/api'
 import { cn } from './lib/utils'
 import { useState } from 'react'
-import useSWR from 'swr'
+import useSWR, { SWRConfig } from 'swr'
+import { Toaster } from 'sonner'
 
-export default function App() {
+function AppContent() {
   const [activeSection, setActiveSection] = useState<string>("project-list")
   const [showProjectForm, setShowProjectForm] = useState(false)
   const [showCandidateForm, setShowCandidateForm] = useState(false)
@@ -365,5 +366,18 @@ export default function App() {
 
       <Toaster />
     </div>
+
+export default function App() {
+  return (
+    <SWRConfig value={{
+      refreshInterval: 3000,
+      revalidateOnFocus: true,
+      dedupingInterval: 2000,
+      fetcher: (url: string) => fetch(`https://musical-memory-api-v1.fly.dev/api${url}`).then(r => r.json())
+    }}>
+      <AppContent />
+    </SWRConfig>
+  )
+}
   )
 }
