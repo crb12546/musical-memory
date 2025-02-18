@@ -4,20 +4,19 @@ from sqlalchemy.orm import Session
 import os
 import json
 from . import models, schemas, database
+from .notifications import notification_service, NotificationType
 from typing import List
 import shutil
 from pathlib import Path
 from uuid import UUID
+from datetime import datetime
 
 app = FastAPI()
 
 # Configure CORS for frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://slack-language-app-ky3hcdvq.devinapps.com",
-        "http://localhost:5173"  # For local development
-    ],
+    allow_origins=["*"],  # Allow all origins for development
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -94,16 +93,57 @@ def list_requirements(db: Session = Depends(database.get_db)):
 
 # Interview endpoints
 @app.post("/api/interviews/", response_model=schemas.Interview)
-def create_interview(interview: schemas.InterviewCreate, db: Session = Depends(database.get_db)):
+async def create_interview(interview: schemas.InterviewCreate, db: Session = Depends(database.get_db)):
     db_interview = models.Interview(**interview.dict())
     db.add(db_interview)
     db.commit()
     db.refresh(db_interview)
+    
+    # Get candidate name for notification
+    candidate = db.query(models.Candidate).filter(models.Candidate.id == interview.candidate_id).first()
+    if candidate:
+        await notification_service.send_notification(
+            NotificationType.INTERVIEW_SCHEDULED,
+            {
+                "candidate_name": candidate.name,
+                "datetime": interview.scheduled_time.isoformat()
+            }
+        )
+    
     return db_interview
 
 @app.get("/api/interviews/", response_model=List[schemas.Interview])
 def list_interviews(db: Session = Depends(database.get_db)):
     return db.query(models.Interview).all()
+
+@app.put("/api/interviews/{interview_id}", response_model=schemas.Interview)
+async def update_interview(
+    interview_id: UUID,
+    interview: schemas.Interview,
+    db: Session = Depends(database.get_db)
+):
+    db_interview = db.query(models.Interview).filter(models.Interview.id == interview_id).first()
+    if not db_interview:
+        raise HTTPException(status_code=404, detail="Interview not found")
+    
+    update_data = interview.dict(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(db_interview, key, value)
+    
+    db_interview.updated_at = datetime.utcnow()
+    db.commit()
+    db.refresh(db_interview)
+    
+    # Send notification if feedback is submitted
+    if interview.feedback and db_interview.status == "completed":
+        candidate = db.query(models.Candidate).filter(models.Candidate.id == db_interview.candidate_id).first()
+        if candidate:
+            await notification_service.send_notification(
+                NotificationType.FEEDBACK_SUBMITTED,
+                {"candidate_name": candidate.name}
+            )
+    
+    return db_interview
 
 # Candidate endpoints
 @app.post("/api/candidates/", response_model=schemas.Candidate)
@@ -153,6 +193,12 @@ async def upload_resume(
         file_type=file.content_type
     )
     db.add(db_resume)
+    
+    # Send notification for new resume
+    await notification_service.send_notification(
+        NotificationType.RESUME_RECEIVED,
+        {"candidate_name": candidate.name}
+    )
     
     # Parse resume using LLM
     try:

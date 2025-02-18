@@ -236,57 +236,61 @@ export function ProjectList({
   });
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="flex flex-col md:flex-row items-center gap-6 mb-8 bg-white p-6 rounded-lg shadow-sm">
-        <Input
-          placeholder="搜索职位名称..."
-          value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("title")?.setFilterValue(event.target.value)
-          }
-          className="w-full md:w-64"
-        />
-        <Input
-          placeholder="搜索部门..."
-          value={(table.getColumn("department")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("department")?.setFilterValue(event.target.value)
-          }
-          className="w-full md:w-64"
-        />
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="选择状态" />
-          </SelectTrigger>
-          <SelectContent>
-            {statusOptions.map(option => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="选择优先级" />
-          </SelectTrigger>
-          <SelectContent>
-            {priorityOptions.map(option => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+      <div className="flex flex-col md:flex-row items-start md:items-center gap-4 mb-6 bg-white p-4 sm:p-6 rounded-lg shadow-sm">
+        <div className="w-full md:w-auto space-y-4 md:space-y-0 md:flex md:gap-4">
+          <Input
+            placeholder="搜索职位名称..."
+            value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
+            onChange={(event) =>
+              table.getColumn("title")?.setFilterValue(event.target.value)
+            }
+            className="w-full md:w-64"
+          />
+          <Input
+            placeholder="搜索部门..."
+            value={(table.getColumn("department")?.getFilterValue() as string) ?? ""}
+            onChange={(event) =>
+              table.getColumn("department")?.setFilterValue(event.target.value)
+            }
+            className="w-full md:w-64"
+          />
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="全部状态" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">全部状态</SelectItem>
+              {statusOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={priorityFilter} onValueChange={setPriorityFilter}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="全部优先级" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">全部优先级</SelectItem>
+              {priorityOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="border-b border-gray-200">
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id} className="bg-gray-50 px-6 py-4">
+      <div className="bg-white rounded-lg shadow-md overflow-x-auto">
+        <div className="min-w-[800px]">
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id} className="border-b border-gray-200">
+                  {headerGroup.headers.map((header) => (
+                    <TableHead key={header.id} className="bg-gray-50/50 px-4 py-3.5 text-gray-700 text-sm font-medium tracking-wide">
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -294,44 +298,44 @@ export function ProjectList({
                             header.getContext()
                           )}
                     </TableHead>
-                  )
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                  className="hover:bg-gray-50 transition-colors"
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="px-6 py-4">
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
                   ))}
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-32 text-center text-gray-500"
-                >
-                  暂无数据
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
+                    className="hover:bg-gray-50 transition-colors"
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id} className="px-4 py-3.5 text-sm text-gray-600">
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-32 text-center text-gray-500"
+                  >
+                    <div className="flex items-center justify-center h-[300px] text-gray-500">暂无数据</div>
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </div>
-      <div className="mt-6 flex items-center justify-between px-4">
-        <div className="text-sm text-gray-500">
+      <div className="mt-6 flex flex-col sm:flex-row items-center justify-between px-4 gap-4">
+        <div className="text-sm text-gray-500 order-2 sm:order-1">
           共 {table.getFilteredRowModel().rows.length} 条记录
         </div>
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-4 order-1 sm:order-2">
           <Button
             variant="outline"
             size="sm"
@@ -352,8 +356,6 @@ export function ProjectList({
           </Button>
         </div>
       </div>
-
-      {/* Project detail view removed as it's replaced by edit functionality */}
     </div>
   );
 }

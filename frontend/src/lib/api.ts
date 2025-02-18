@@ -40,8 +40,11 @@ export interface Project {
   benefits?: string;  // JSON string
   priority: string;  // low, normal, high, urgent
   status: string;  // draft, open, in-progress, on-hold, closed
+  current_stage?: string;  // sourcing, interviewing, offer, onboarding
+  completed_stages?: string[];  // Array of completed stage IDs
   target_date: string;
   created_at: string;
+  updated_at?: string;
 }
 
 export interface Requirement {
@@ -53,17 +56,30 @@ export interface Requirement {
   tags: Tag[];
 }
 
+export interface InterviewFeedback {
+  technical_score: number;
+  communication_score: number;
+  culture_fit_score: number;
+  strengths: string[];
+  areas_for_improvement: string[];
+  recommendation: string;
+  overall_rating: number;
+  interviewer_notes?: string;
+}
+
 export interface Interview {
   id: string;
   project_id: string;
   candidate_id: string;
   scheduled_time: string;
+  interview_type: string;
   status: string;
-  feedback?: string;
+  feedback?: InterviewFeedback;
   created_at: string;
+  updated_at?: string;
 }
 
-export type InterviewCreate = Omit<Interview, 'id' | 'created_at'>
+export type InterviewCreate = Omit<Interview, 'id' | 'created_at' | 'updated_at'>
 
 export const api = {
   // Candidates
@@ -169,6 +185,16 @@ export const api = {
   async getInterviews(): Promise<Interview[]> {
     const response = await fetch(`${API_URL}/api/interviews/`);
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    return response.json();
+  },
+
+  async updateInterview(id: string, data: Partial<Interview>): Promise<Interview> {
+    const response = await fetch(`${API_URL}/api/interviews/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    if (!response.ok) throw new Error(`Failed to update interview: ${response.status}`);
     return response.json();
   }
 };
