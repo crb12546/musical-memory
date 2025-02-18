@@ -7,7 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Textarea } from "./textarea";
 import { api } from "../../lib/api";
 import { toast } from "sonner";
-import type { Project, Candidate } from "../../lib/types";
+import type { Project, Candidate } from "../../lib/api";
+import type { InterviewCreate } from "../../lib/api";
 
 export function InterviewScheduler({
   project,
@@ -68,15 +69,23 @@ export function InterviewScheduler({
 
     setLoading(true);
     try {
-      const interviewData = {
+      const interviewData: InterviewCreate = {
         project_id: project.id,
         candidate_id: candidateId,
         scheduled_time: scheduledTime.includes('ss') ? scheduledTime : `${scheduledTime}:00`,
         status,
         interview_type: interviewType,
         rating: rating ? parseInt(rating, 10) : undefined,
-        feedback: feedback || undefined
-      } as const;
+        feedback: feedback ? {
+          technical_score: rating ? parseInt(rating, 10) : 0,
+          communication_score: 0,
+          culture_fit_score: 0,
+          strengths: [],
+          areas_for_improvement: [],
+          recommendation: feedback,
+          overall_rating: rating ? parseInt(rating, 10) : 0
+        } : undefined
+      };
 
       await api.createInterview(interviewData);
       toast.success(status === 'scheduled' ? "面试已安排" : "面试已更新");
