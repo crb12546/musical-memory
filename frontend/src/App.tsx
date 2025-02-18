@@ -33,7 +33,12 @@ export default function App() {
   const updateProjects = (data: Project[]) => setProjects(data);
 
   const refreshData = React.useCallback(async () => {
-    const results = await Promise.allSettled([
+    const results = await Promise.allSettled<[
+      Promise<Candidate[]>,
+      Promise<Resume[]>,
+      Promise<Project[]>,
+      Promise<Interview[]>
+    ]>([
       api.getCandidates(),
       api.getResumes(),
       api.getProjects(),
