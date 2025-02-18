@@ -43,7 +43,7 @@ class Resume(Base):
     candidate_id = Column(String, ForeignKey('candidates.id'))
     file_path = Column(String, nullable=False)
     file_type = Column(String, nullable=False)
-    parsed_content = Column(String)
+    parsed_content = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     
     candidate = relationship("Candidate", back_populates="resumes")

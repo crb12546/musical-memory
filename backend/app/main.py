@@ -16,12 +16,10 @@ app = FastAPI()
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://musical-memory-frontend-v1.fly.dev"],
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"],
-    allow_headers=["Content-Type", "Authorization", "Accept", "Origin", "X-Requested-With"],
-    expose_headers=["Content-Type", "Authorization"],
-    max_age=3600  # Cache preflight requests for 1 hour
+    allow_methods=["*"],
+    allow_headers=["*"]
 )
 
 # Create uploads directory
