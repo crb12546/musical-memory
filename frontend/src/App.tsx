@@ -1,6 +1,5 @@
 
 import { Toaster, toast } from 'sonner'
-
 import { Button } from './components/ui/button'
 import { ProjectList } from './components/ui/project-list'
 import { ProjectForm } from './components/ui/project-form'
@@ -19,7 +18,6 @@ import type { Candidate, Project, Interview, Resume, Tag } from './lib/api'
 import { cn } from './lib/utils'
 import { useState } from 'react'
 import useSWR, { SWRConfig } from 'swr'
-import { Toaster } from 'sonner'
 
 function AppContent() {
   const [activeSection, setActiveSection] = useState<string>("project-list")
@@ -366,6 +364,8 @@ function AppContent() {
 
       <Toaster />
     </div>
+  );
+}
 
 export default function App() {
   return (
@@ -377,7 +377,6 @@ export default function App() {
     }}>
       <AppContent />
     </SWRConfig>
-  )
+  );
 }
-  )
 }
