@@ -13,6 +13,15 @@ from datetime import datetime
 
 app = FastAPI()
 
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://musical-memory-frontend-v1.fly.dev"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # Configure CORS for frontend
 app.add_middleware(
     CORSMiddleware,
