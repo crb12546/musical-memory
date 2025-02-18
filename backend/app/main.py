@@ -43,6 +43,7 @@ async def startup_event():
         print(f"Error during startup: {str(e)}")
 
 @app.get("/healthz")
+@app.head("/healthz")
 async def healthz():
     return {"status": "ok"}
 
