@@ -124,7 +124,9 @@ export const api = {
     }
 
     return response.json();
-  },</old_str>
+  },
+
+  async getResumes(): Promise<Resume[]> {</old_str>
 
 
   async getResumes(): Promise<Resume[]> {

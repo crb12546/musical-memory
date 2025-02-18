@@ -33,11 +33,6 @@ export function ResumeUpload({
 
     setLoading(true);
     try {
-      if (!candidateId) {
-        toast.error("请选择候选人");
-        return;
-      }
-
       const files = Array.from(selectedFiles);
       for (const file of files) {
         await api.uploadResume(file, candidateId);
@@ -47,7 +42,8 @@ export function ResumeUpload({
       e.currentTarget.reset();
       onSuccess?.();
     } catch (error) {
-      toast.error((error as Error).message);
+      const errorMessage = (error as Error).message;
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
