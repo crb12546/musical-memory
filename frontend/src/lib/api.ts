@@ -100,6 +100,12 @@ export const api = {
 
   // Resumes
   async uploadResume(file: File, candidateId: string): Promise<Resume> {
+    // Validate file type
+    const validTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+    if (!validTypes.some(type => file.type === type)) {
+      throw new Error('文件类型不支持：请上传 PDF 或 Word 文档（.pdf, .doc, .docx）');
+    }
+
     const formData = new FormData();
     formData.append('file', file);
     formData.append('candidate_id', candidateId);
@@ -108,6 +114,15 @@ export const api = {
       method: 'POST',
       body: formData,
     });
+
+    if (!response.ok) {
+      const error = await response.json();
+      if (response.status === 404) {
+        throw new Error('候选人不存在：请确认候选人信息已正确录入系统');
+      }
+      throw new Error(error.detail || `上传失败：服务器返回错误 ${response.status}，请稍后重试或联系技术支持`);
+    }
+
     return response.json();
   },
 
