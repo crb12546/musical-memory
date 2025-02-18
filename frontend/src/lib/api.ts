@@ -121,12 +121,14 @@ export const api = {
 
     const headers: HeadersInit = {
       'Accept': 'application/json',
-      'Origin': 'https://musical-memory-frontend-v1.fly.dev'
+      'Origin': window.location.origin,
+      'X-Requested-With': 'XMLHttpRequest'
     };
 
     const response = await fetch(`${API_URL}/api/resumes/`, {
       method: 'POST',
       headers,
+      credentials: 'include',
       body: formData,
     });
     if (!response.ok) {
