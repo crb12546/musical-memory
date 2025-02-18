@@ -25,6 +25,42 @@ export default function App() {
   const [interviews, setInterviews] = useState<Interview[]>([])
   const [projects, setProjects] = useState<Project[]>([])
 
+  const updateCandidates = (data: Candidate[]) => setCandidates(data);
+  const updateResumes = (data: Resume[]) => setResumes(data);
+  const updateInterviews = (data: Interview[]) => setInterviews(data);
+  const updateProjects = (data: Project[]) => setProjects(data);
+
+  const refreshData = React.useCallback(async () => {
+    try {
+      const [candidatesData, resumesData, projectsData, interviewsData] = 
+        await Promise.all([
+          api.getCandidates(),
+          api.getResumes(),
+          api.getProjects(),
+          api.getInterviews()
+        ]);
+      
+      updateCandidates(candidatesData as Candidate[]);
+      updateResumes(resumesData as Resume[]);
+      updateProjects(projectsData as Project[]);
+      updateInterviews(interviewsData as Interview[]);
+    } catch (error) {
+      toast.error("数据刷新失败：" + (error as Error).message);
+    }
+  }, []);
+
+  // Initial data load
+  useEffect(() => {
+    refreshData();
+  }, [refreshData]);
+
+  // Auto refresh every 30 seconds
+  useEffect(() => {
+    const interval = setInterval(refreshData, 30000);
+    return () => clearInterval(interval);
+  }, [refreshData]);
+
+  // Legacy effect for backward compatibility during transition
   useEffect(() => {
     Promise.all([
       api.getCandidates(),
@@ -32,10 +68,10 @@ export default function App() {
       api.getProjects(),
       api.getInterviews()
     ]).then(([candidatesData, resumesData, projectsData, interviewsData]) => {
-      setCandidates(candidatesData)
-      setResumes(resumesData)
-      setProjects(projectsData)
-      setInterviews(interviewsData)
+      updateCandidates(candidatesData as Candidate[])
+      updateResumes(resumesData as Resume[])
+      updateProjects(projectsData as Project[])
+      updateInterviews(interviewsData as Interview[])
     })
   }, [])
 
