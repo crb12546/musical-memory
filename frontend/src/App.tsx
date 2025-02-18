@@ -274,7 +274,7 @@ export default function App() {
                     </div>
                     {interview.feedback && (
                       <div className="bg-gray-50 rounded-lg p-4">
-                        <p className="text-sm text-gray-700">{interview.feedback}</p>
+                        <p className="text-sm text-gray-700">{interview.feedback?.recommendation || ''}</p>
                       </div>
                     )}
                   </div>
