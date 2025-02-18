@@ -1,3 +1,4 @@
+import * as React from "react";
 import { useState } from "react";
 import { Button } from "./button";
 import { Input } from "./input";
@@ -50,17 +51,15 @@ export function InterviewScheduler({
     }
 
     setLoading(true);
-
+    try {
       const interviewData = {
         project_id: project.id,
-        candidate_id: formData.get('candidate_id') as string,
-        scheduled_time: new Date(formData.get('scheduled_time') as string).toISOString(),
+        candidate_id: candidateId,
+        scheduled_time: new Date(scheduledTime).toISOString(),
         status,
-        feedback: feedback ? JSON.stringify({
-          type: interviewType,
-          rating: parseInt(rating || '0', 10),
-          comments: feedback
-        }) : undefined
+        interview_type: interviewType,
+        rating: rating ? parseInt(rating, 10) : undefined,
+        feedback: feedback || undefined
       };
 
       await api.createInterview(interviewData);
