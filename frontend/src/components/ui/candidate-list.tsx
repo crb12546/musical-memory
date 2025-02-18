@@ -60,13 +60,13 @@ export function CandidateList({ candidates, resumes }: CandidateListProps) {
       header: "状态",
       cell: ({ row }) => {
         const statusColors = {
-          active: "bg-green-100 text-green-700",
-          pending: "bg-yellow-100 text-yellow-700",
-          inactive: "bg-gray-100 text-gray-700",
+          available: "bg-green-100 text-green-700",
+          interviewing: "bg-yellow-100 text-yellow-700",
+          hired: "bg-gray-100 text-gray-700",
         };
         return (
-          <Badge className={statusColors[row.original.status as keyof typeof statusColors]}>
-            {row.original.status}
+          <Badge className={statusColors[row.original.state as keyof typeof statusColors]}>
+            {row.original.state}
           </Badge>
         );
       },
