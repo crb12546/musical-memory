@@ -10,7 +10,7 @@ import type { Resume as ApiResume } from "../../lib/api";
 import type { Resume as TypesResume } from "../../lib/types";
 import { useState, useEffect } from "react";
 
-interface ResumePreviewProps {
+export interface ResumePreviewProps {
   resume: TypesResume;
 }
 
