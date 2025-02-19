@@ -11,7 +11,7 @@ import { SidebarProvider, Sidebar, SidebarMenu } from './components/ui/sidebar'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './components/ui/dialog'
 import { Badge } from './components/ui/badge'
 import { api } from './lib/api'
-import type { Candidate, Project, Interview, Resume, Tag } from './lib/types'
+import type { Candidate, Project, Interview, Resume, Tag } from './lib/api'
 import { cn } from './lib/utils'
 import * as React from 'react'
 import { useState, useEffect } from 'react'
@@ -19,6 +19,7 @@ import { toast } from 'sonner'
 
 export default function App() {
   const [activeSection, setActiveSection] = useState<string>("project-list")
+  const [loading, setLoading] = useState(false)
   const [showProjectForm, setShowProjectForm] = useState(false)
 
   const [selectedProject, setSelectedProject] = useState<Project | null>(null)
@@ -34,48 +35,77 @@ export default function App() {
 
   const refreshData = React.useCallback(async () => {
     try {
-      const [candidatesData, resumesData, projectsData, interviewsData] = 
-        await Promise.all([
-          api.getCandidates(),
-          api.getResumes(),
-          api.getProjects(),
-          api.getInterviews()
-        ]);
-      
-      updateCandidates(candidatesData as Candidate[]);
-      updateResumes(resumesData as Resume[]);
-      updateProjects(projectsData as Project[]);
-      updateInterviews(interviewsData as Interview[]);
+      type ApiResults = [
+        Promise<Candidate[]>,
+        Promise<Resume[]>,
+        Promise<Project[]>,
+        Promise<Interview[]>
+      ];
+      const results = await Promise.allSettled<ApiResults>([
+        api.getCandidates(),
+        api.getResumes(),
+        api.getProjects(),
+        api.getInterviews()
+      ]);
+    
+    results.forEach((result, index) => {
+      if (result.status === 'fulfilled') {
+        switch(index) {
+          case 0:
+            updateCandidates(result.value as Candidate[]);
+            break;
+          case 1:
+            updateResumes(result.value as Resume[]);
+            break;
+          case 2:
+            updateProjects(result.value as Project[]);
+            break;
+          case 3:
+            updateInterviews(result.value as Interview[]);
+            break;
+        }
+      } else {
+        console.error(`Failed to fetch data for index ${index}:`, result.reason);
+        toast.error(`数据刷新失败：${result.reason}`);
+      }
+    });
     } catch (error) {
-      toast.error("数据刷新失败：" + (error as Error).message);
+      console.error('Refresh failed:', error);
+      toast.error(`数据刷新失败：${(error as Error).message}`);
     }
   }, []);
 
-  // Initial data load
+  // Initial data load with loading state
   useEffect(() => {
-    refreshData();
+    setLoading(true);
+    refreshData().finally(() => setLoading(false));
   }, [refreshData]);
 
-  // Auto refresh every 30 seconds
+  // Auto refresh with error handling and loading state
   useEffect(() => {
-    const interval = setInterval(refreshData, 30000);
+    const interval = setInterval(async () => {
+      try {
+        await refreshData();
+      } catch (error) {
+        console.error('Auto-refresh failed:', error);
+        // Don't show toast for background refresh errors
+      }
+    }, 15000); // Reduced to 15 seconds for better real-time updates
     return () => clearInterval(interval);
   }, [refreshData]);
 
-  // Legacy effect for backward compatibility during transition
-  useEffect(() => {
-    Promise.all([
-      api.getCandidates(),
-      api.getResumes(),
-      api.getProjects(),
-      api.getInterviews()
-    ]).then(([candidatesData, resumesData, projectsData, interviewsData]) => {
-      updateCandidates(candidatesData as Candidate[])
-      updateResumes(resumesData as Resume[])
-      updateProjects(projectsData as Project[])
-      updateInterviews(interviewsData as Interview[])
-    })
-  }, [])
+  // Use memoized update functions in refreshData
+  const memoizedUpdateFunctions = React.useMemo(() => ({
+    updateCandidates,
+    updateResumes,
+    updateProjects,
+    updateInterviews
+  }), []);
+
+  React.useEffect(() => {
+    // Update refreshData dependencies to use memoized functions
+    refreshData();
+  }, [memoizedUpdateFunctions]);
 
   const renderContent = () => {
     const Section = ({ children, className }: { children: React.ReactNode, className?: string }) => (
@@ -101,7 +131,7 @@ export default function App() {
             </Section>
             <Section>
               <Title>数据分析</Title>
-              <AnalyticsDashboard projects={projects} interviews={interviews} />
+              <AnalyticsDashboard />
             </Section>
           </div>
         )
@@ -250,7 +280,7 @@ export default function App() {
                     </div>
                     {interview.feedback && (
                       <div className="bg-gray-50 rounded-lg p-4">
-                        <p className="text-sm text-gray-700">{interview.feedback}</p>
+                        <p className="text-sm text-gray-700">{interview.feedback?.recommendation || ''}</p>
                       </div>
                     )}
                   </div>
