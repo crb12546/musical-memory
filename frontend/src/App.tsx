@@ -19,7 +19,19 @@ import { toast } from 'sonner'
 
 export default function App() {
   const [activeSection, setActiveSection] = useState<string>("project-list")
-  const [loading, setLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+
+  // Loading state effect
+  useEffect(() => {
+    if (isLoading) {
+      document.body.classList.add('loading');
+    } else {
+      document.body.classList.remove('loading');
+    }
+    return () => {
+      document.body.classList.remove('loading');
+    };
+  }, [isLoading]);
   const [showProjectForm, setShowProjectForm] = useState(false)
 
   const [selectedProject, setSelectedProject] = useState<Project | null>(null)
@@ -77,8 +89,8 @@ export default function App() {
 
   // Initial data load with loading state
   useEffect(() => {
-    setLoading(true);
-    refreshData().finally(() => setLoading(false));
+    setIsLoading(true);
+    refreshData().finally(() => setIsLoading(false));
   }, [refreshData]);
 
   // Auto refresh with error handling and loading state

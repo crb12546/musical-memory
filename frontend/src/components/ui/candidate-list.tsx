@@ -7,10 +7,14 @@ import type { Resume, Candidate } from "../../lib/api";
 import { ColumnDef } from "@tanstack/react-table";
 import { FileText, Mail, Phone } from "lucide-react";
 import { ResumePreview } from "./resume-preview";
+import type { Resume as ApiResume } from "../../lib/api";
+import type { Resume as TypesResume } from "../../lib/types";
+
+type CandidateState = 'available' | 'interviewing' | 'hired';
 
 interface CandidateListProps {
   candidates: Candidate[];
-  resumes: Resume[];
+  resumes: ApiResume[];
 }
 
 export function CandidateList({ candidates, resumes }: CandidateListProps) {
@@ -65,8 +69,8 @@ export function CandidateList({ candidates, resumes }: CandidateListProps) {
           hired: "bg-gray-100 text-gray-700",
         };
         return (
-          <Badge className={statusColors[row.original.state as keyof typeof statusColors]}>
-            {row.original.state}
+          <Badge className={statusColors[row.original.state as CandidateState] || statusColors.available}>
+            {row.original.state || 'available'}
           </Badge>
         );
       },
@@ -130,7 +134,7 @@ export function CandidateList({ candidates, resumes }: CandidateListProps) {
             <DialogHeader>
               <DialogTitle>简历详情</DialogTitle>
             </DialogHeader>
-            <ResumePreview resume={selectedResume} />
+            <ResumePreview resume={selectedResume as unknown as TypesResume} />
           </DialogContent>
         </Dialog>
       )}
