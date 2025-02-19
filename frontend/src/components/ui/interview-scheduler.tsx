@@ -7,7 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Textarea } from "./textarea";
 import { api } from "../../lib/api";
 import { toast } from "sonner";
-import type { Project, Candidate } from "../../lib/types";
+import type { Project, Candidate } from "../../lib/api";
+import type { InterviewCreate } from "../../lib/api";
 
 export function InterviewScheduler({
   project,
@@ -29,37 +30,61 @@ export function InterviewScheduler({
     const feedback = formData.get('feedback') as string;
     const rating = formData.get('rating') as string;
     const interviewType = formData.get('interview_type') as string;
+
+    // Validate datetime format
+    const dateRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?$/;
+    if (!dateRegex.test(scheduledTime)) {
+      toast.error("日期时间格式错误：请使用正确的格式（例如：2025-02-20 14:00）");
+      return;
+    }
+
+    // Ensure time is in the future
+    const selectedTime = new Date(scheduledTime);
+    const now = new Date();
+    if (selectedTime <= now) {
+      const minTime = new Date(now.getTime() + 30 * 60000); // 30 minutes from now
+      toast.error(`面试时间无效：请选择未来时间（至少 ${minTime.toLocaleTimeString('zh-CN')} 之后）`);
+      return;
+    }
     
     if (!candidateId) {
-      toast.error("请选择候选人");
+      toast.error("请选择候选人：从下拉列表中选择一位候选人");
       return;
     }
     
     if (!scheduledTime) {
-      toast.error("请选择面试时间");
+      toast.error("请选择面试时间：点击日历图标选择合适的时间");
       return;
     }
 
     if (status === 'completed' && !rating) {
-      toast.error("已完成的面试必须提供评分");
+      toast.error("评分缺失：已完成的面试必须提供评分（1-5星）");
       return;
     }
 
     if (status === 'completed' && !feedback) {
-      toast.error("已完成的面试必须提供反馈");
+      toast.error("反馈缺失：已完成的面试必须提供详细的反馈意见");
       return;
     }
 
     setLoading(true);
     try {
-      const interviewData = {
+      const interviewData: InterviewCreate = {
         project_id: project.id,
         candidate_id: candidateId,
-        scheduled_time: new Date(scheduledTime).toISOString(),
+        scheduled_time: scheduledTime.includes('ss') ? scheduledTime : `${scheduledTime}:00`,
         status,
         interview_type: interviewType,
         rating: rating ? parseInt(rating, 10) : undefined,
-        feedback: feedback || undefined
+        feedback: feedback ? {
+          technical_score: rating ? parseInt(rating, 10) : 0,
+          communication_score: 0,
+          culture_fit_score: 0,
+          strengths: [],
+          areas_for_improvement: [],
+          recommendation: feedback,
+          overall_rating: rating ? parseInt(rating, 10) : 0
+        } : undefined
       };
 
       await api.createInterview(interviewData);
@@ -99,7 +124,7 @@ export function InterviewScheduler({
             name="scheduled_time"
             type="datetime-local"
             required
-            min={new Date().toISOString().split('.')[0]}
+            min={new Date().toISOString().slice(0, 16)}
           />
         </div>
 
