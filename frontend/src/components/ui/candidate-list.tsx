@@ -3,7 +3,7 @@ import { Button } from "./button";
 import { Badge } from "./badge";
 import { DataTable } from "./data-table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./dialog";
-import type { Resume, Candidate } from "../../lib/api";
+import type { Candidate } from "../../lib/api";
 import { ColumnDef } from "@tanstack/react-table";
 import { FileText, Mail, Phone } from "lucide-react";
 import { ResumePreview } from "./resume-preview";
@@ -18,7 +18,7 @@ interface CandidateListProps {
 }
 
 export function CandidateList({ candidates, resumes }: CandidateListProps) {
-  const [selectedResume, setSelectedResume] = useState<Resume | null>(null);
+  const [selectedResume, setSelectedResume] = useState<ApiResume | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
