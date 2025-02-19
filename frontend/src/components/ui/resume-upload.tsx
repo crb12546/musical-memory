@@ -16,6 +16,7 @@ export function ResumeUpload({
   onSuccess?: () => void;
 }) {
   const [loading, setLoading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -33,12 +34,16 @@ export function ResumeUpload({
 
     setLoading(true);
     try {
+      setUploadProgress(0);
       const files = Array.from(selectedFiles);
+      
       for (const file of files) {
-        await api.uploadResume(file, candidateId);
+        await api.uploadResume(file, candidateId, setUploadProgress);
       }
+      
       toast.success("简历上传成功");
       setSelectedFiles(null);
+      setUploadProgress(0);
       e.currentTarget.reset();
       onSuccess?.();
     } catch (error) {
@@ -76,9 +81,23 @@ export function ResumeUpload({
           required
         />
       </div>
-      <Button type="submit" disabled={loading || !selectedFiles}>
-        {loading ? "Uploading..." : "Upload Resume"}
-      </Button>
+      <div className="space-y-2">
+        {(loading || uploadProgress > 0) && (
+          <div className="w-full bg-gray-200 rounded-full h-2.5">
+            <div 
+              className="bg-blue-600 h-2.5 rounded-full transition-all duration-300" 
+              style={{ width: `${uploadProgress}%` }}
+            />
+          </div>
+        )}
+        <Button 
+          type="submit" 
+          disabled={loading || !selectedFiles}
+          className="w-full"
+        >
+          {loading ? `上传中 ${uploadProgress}%` : "上传简历"}
+        </Button>
+      </div>
     </form>
   );
 }

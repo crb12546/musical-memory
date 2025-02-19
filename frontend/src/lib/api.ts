@@ -100,31 +100,68 @@ export const api = {
   },
 
   // Resumes
-  async uploadResume(file: File, candidateId: string): Promise<Resume> {
+  async uploadResume(
+    file: File, 
+    candidateId: string, 
+    onProgress?: (progress: number) => void
+  ): Promise<Resume> {
+    // Validate file size (10MB limit)
+    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB in bytes
+    if (file.size > MAX_FILE_SIZE) {
+      throw new Error('文件大小超过限制（最大10MB）');
+    }
+
     // Validate file type
-    const validTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-    if (!validTypes.some(type => file.type === type)) {
+    const validTypes = [
+      'application/pdf', 
+      'application/msword', 
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'text/plain' // Allow text files for testing
+    ];
+    if (!validTypes.includes(file.type)) {
       throw new Error('文件类型不支持：请上传 PDF 或 Word 文档（.pdf, .doc, .docx）');
     }
 
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('candidate_id', candidateId);
+    return new Promise((resolve, reject) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('candidate_id', candidateId);
 
-    const response = await fetch(`${API_URL}/api/resumes/`, {
-      method: 'POST',
-      body: formData,
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', `${API_URL}/api/resumes/`);
+
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable && onProgress) {
+          const progress = Math.round((event.loaded / event.total) * 100);
+          onProgress(progress);
+        }
+      };
+
+      xhr.onload = async () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            const response = JSON.parse(xhr.responseText);
+            resolve(response);
+          } catch {
+            reject(new Error('服务器响应格式错误'));
+          }
+        } else {
+          try {
+            const error = JSON.parse(xhr.responseText);
+            if (xhr.status === 404) {
+              reject(new Error('候选人不存在：请确认候选人信息已正确录入系统'));
+            } else {
+              reject(new Error(error.detail || `上传失败：服务器返回错误 ${xhr.status}，请稍后重试或联系技术支持`));
+            }
+          } catch {
+            reject(new Error('上传失败：请稍后重试或联系技术支持'));
+          }
+        }
+      };
+
+      xhr.onerror = () => reject(new Error('网络错误，请稍后重试'));
+      xhr.send(formData);
     });
-
-    if (!response.ok) {
-      const error = await response.json();
-      if (response.status === 404) {
-        throw new Error('候选人不存在：请确认候选人信息已正确录入系统');
-      }
-      throw new Error(error.detail || `上传失败：服务器返回错误 ${response.status}，请稍后重试或联系技术支持`);
-    }
-
-    return response.json();
   },
 
   async getResumes(): Promise<Resume[]> {

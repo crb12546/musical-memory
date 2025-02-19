@@ -1,6 +1,7 @@
 from fastapi import FastAPI, File, UploadFile, Depends, HTTPException, Form
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
+from sqlalchemy import String
 import os
 import json
 from . import models, schemas, database
@@ -16,11 +17,12 @@ app = FastAPI()
 # Configure CORS for frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins for development
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-    expose_headers=["*"]
+    allow_origins=["http://localhost:5173"],  # Allow frontend server
+    allow_credentials=True,  # Enable credentials
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    allow_headers=["Content-Type", "Authorization", "Accept", "Origin", "X-Requested-With"],
+    expose_headers=["Content-Type"],
+    max_age=3600
 )
 
 # Create uploads directory
@@ -166,65 +168,131 @@ async def upload_resume(
     db: Session = Depends(database.get_db)
 ):
     if not candidate_id:
-        raise HTTPException(status_code=400, detail="Candidate ID is required")
+        raise HTTPException(status_code=400, detail="请提供候选人ID")
     
     try:
         candidate_uuid = UUID(candidate_id)
     except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid candidate ID format")
+        raise HTTPException(status_code=400, detail="候选人ID格式无效")
     
     # Check if candidate exists
-    candidate = db.query(models.Candidate).filter(models.Candidate.id == candidate_uuid).first()
+    candidate = db.query(models.Candidate).filter(
+        models.Candidate.id == str(candidate_uuid)
+    ).first()
     if not candidate:
-        raise HTTPException(status_code=404, detail="Candidate not found")
+        raise HTTPException(status_code=404, detail="未找到该候选人，请确认候选人信息已正确录入系统")
     
-    # Create uploads directory if it doesn't exist
-    UPLOAD_DIR.mkdir(exist_ok=True)
+    # Validate file type
+    allowed_types = [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'text/plain'  # Allow text files for testing
+    ]
+    if file.content_type not in allowed_types:
+        raise HTTPException(
+            status_code=400,
+            detail="不支持的文件类型。请上传 PDF、Word 文档或文本文件。"
+        )
     
-    # Save the file
-    file_path = UPLOAD_DIR / f"{candidate_id}_{file.filename}"
-    with file_path.open("wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
-    
-    # Create resume record
-    db_resume = models.Resume(
-        candidate_id=candidate_uuid,
-        file_path=str(file_path),
-        file_type=file.content_type
-    )
-    db.add(db_resume)
-    
-    # Send notification for new resume
-    await notification_service.send_notification(
-        NotificationType.RESUME_RECEIVED,
-        {"candidate_name": candidate.name}
-    )
-    
-    # Parse resume using LLM
     try:
-        from . import llm
-        parsed_data = llm.parse_resume(str(file_path), file.content_type)
-        db_resume.parsed_content = json.dumps(parsed_data)
+        # Read file content for size validation
+        content = await file.read()
+        # Validate file size (10MB limit)
+        if len(content) > 10 * 1024 * 1024:  # 10MB in bytes
+            raise HTTPException(
+                status_code=400,
+                detail="文件大小超过限制（最大10MB）"
+            )
         
-        # Create tags from parsed data
-        if "suggested_tags" in parsed_data:
-            for tag_name in parsed_data["suggested_tags"]:
-                # Check if tag exists
-                existing_tag = db.query(models.Tag).filter(models.Tag.name == tag_name).first()
-                if not existing_tag:
-                    tag = models.Tag(name=tag_name, category="skill")
-                    db.add(tag)
-                    db.flush()  # Ensure tag has an ID before association
-                    db_resume.tags.append(tag)
-                else:
-                    db_resume.tags.append(existing_tag)
+        # Create uploads directory if it doesn't exist
+        UPLOAD_DIR.mkdir(exist_ok=True)
+        
+        # Generate unique filename with timestamp
+        timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+        file_ext = Path(file.filename).suffix
+        unique_filename = f"{candidate_id}_{timestamp}{file_ext}"
+        file_path = UPLOAD_DIR / unique_filename
+        
+        # Save the file
+        with file_path.open("wb") as buffer:
+            buffer.write(content)
+        
+        try:
+            # Create resume record
+            db_resume = models.Resume(
+                candidate_id=str(candidate_uuid),
+                file_path=str(file_path),
+                file_type=file.content_type,
+                parsed_content="{}"
+            )
+            db.add(db_resume)
+            
+            try:
+                # Send notification for new resume
+                await notification_service.send_notification(
+                    NotificationType.RESUME_RECEIVED,
+                    {"candidate_name": candidate.name}
+                )
+            except Exception as notify_error:
+                print(f"通知发送失败: {str(notify_error)}")
+            
+            db.commit()
+            db.refresh(db_resume)
+            return db_resume
+            
+        except Exception as e:
+            # Clean up file if it was created
+            if file_path.exists():
+                file_path.unlink()
+            db.rollback()
+            raise HTTPException(
+                status_code=500,
+                detail=f"简历上传失败：{str(e)}"
+            )
+        await notification_service.send_notification(
+            NotificationType.RESUME_RECEIVED,
+            {"candidate_name": candidate.name}
+        )
+        
+        # Parse resume using LLM
+        try:
+            from . import llm
+            parsed_data = llm.parse_resume(str(file_path), file.content_type)
+            db_resume.parsed_content = json.dumps(parsed_data)
+            
+            # Create tags from parsed data
+            if "suggested_tags" in parsed_data:
+                for tag_name in parsed_data["suggested_tags"]:
+                    # Check if tag exists
+                    existing_tag = db.query(models.Tag).filter(models.Tag.name == tag_name).first()
+                    if not existing_tag:
+                        tag = models.Tag(name=tag_name, category="skill")
+                        db.add(tag)
+                        db.flush()
+                        db_resume.tags.append(tag)
+                    else:
+                        db_resume.tags.append(existing_tag)
+        except Exception as parse_error:
+            print(f"简历解析错误: {str(parse_error)}")
+            # Continue without parsed content
+            db_resume.parsed_content = "{}"
+        
+        db.commit()
+        db.refresh(db_resume)
+        return db_resume
+        
+    except HTTPException:
+        raise
     except Exception as e:
-        print(f"Error parsing resume: {str(e)}")
-    
-    db.commit()
-    db.refresh(db_resume)
-    
-    return db_resume
+        # Clean up file if it was created
+        if 'file_path' in locals() and file_path.exists():
+            file_path.unlink()
+        db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"简历上传失败：{str(e)}"
+        )
 
 @app.get("/api/resumes/", response_model=List[schemas.Resume])
 def list_resumes(db: Session = Depends(database.get_db)):
