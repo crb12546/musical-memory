@@ -10,6 +10,10 @@ import type { Resume as ApiResume } from "../../lib/api";
 import type { Resume as TypesResume } from "../../lib/types";
 import { useState, useEffect } from "react";
 
+interface ResumePreviewProps {
+  resume: TypesResume;
+}
+
 type CandidateState = 'available' | 'interviewing' | 'hired';
 
 interface CandidateListProps {
@@ -60,7 +64,7 @@ export function CandidateList({ candidates, resumes }: CandidateListProps) {
       ),
     },
     {
-      accessorKey: "status",
+      accessorKey: "state",
       header: "状态",
       cell: ({ row }) => {
         const statusColors = {
