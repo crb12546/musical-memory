@@ -1,6 +1,7 @@
 from fastapi import FastAPI, File, UploadFile, Depends, HTTPException, Form
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
+from sqlalchemy import String
 import os
 import json
 from . import models, schemas, database
@@ -175,7 +176,9 @@ async def upload_resume(
         raise HTTPException(status_code=400, detail="候选人ID格式无效")
     
     # Check if candidate exists
-    candidate = db.query(models.Candidate).filter(models.Candidate.id == candidate_uuid).first()
+    candidate = db.query(models.Candidate).filter(
+        models.Candidate.id == str(candidate_uuid)
+    ).first()
     if not candidate:
         raise HTTPException(status_code=404, detail="未找到该候选人，请确认候选人信息已正确录入系统")
     
@@ -215,15 +218,38 @@ async def upload_resume(
         with file_path.open("wb") as buffer:
             buffer.write(content)
         
-        # Create resume record
-        db_resume = models.Resume(
-            candidate_id=candidate_uuid,
-            file_path=str(file_path),
-            file_type=file.content_type
-        )
-        db.add(db_resume)
-        
-        # Send notification for new resume
+        try:
+            # Create resume record
+            db_resume = models.Resume(
+                candidate_id=str(candidate_uuid),
+                file_path=str(file_path),
+                file_type=file.content_type,
+                parsed_content="{}"
+            )
+            db.add(db_resume)
+            
+            try:
+                # Send notification for new resume
+                await notification_service.send_notification(
+                    NotificationType.RESUME_RECEIVED,
+                    {"candidate_name": candidate.name}
+                )
+            except Exception as notify_error:
+                print(f"通知发送失败: {str(notify_error)}")
+            
+            db.commit()
+            db.refresh(db_resume)
+            return db_resume
+            
+        except Exception as e:
+            # Clean up file if it was created
+            if file_path.exists():
+                file_path.unlink()
+            db.rollback()
+            raise HTTPException(
+                status_code=500,
+                detail=f"简历上传失败：{str(e)}"
+            )
         await notification_service.send_notification(
             NotificationType.RESUME_RECEIVED,
             {"candidate_name": candidate.name}
