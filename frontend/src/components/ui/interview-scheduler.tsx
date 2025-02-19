@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import type { Project, Candidate } from "../../lib/api";
 import type { InterviewCreate } from "../../lib/api";
 
-export function InterviewScheduler({
+export default function InterviewScheduler({
   project,
   candidates,
   onSuccess
@@ -75,16 +75,15 @@ export function InterviewScheduler({
         scheduled_time: scheduledTime.includes('ss') ? scheduledTime : `${scheduledTime}:00`,
         status,
         interview_type: interviewType,
-        rating: rating ? parseInt(rating, 10) : undefined,
-        feedback: feedback ? {
+        feedback: {
           technical_score: rating ? parseInt(rating, 10) : 0,
           communication_score: 0,
           culture_fit_score: 0,
           strengths: [],
           areas_for_improvement: [],
-          recommendation: feedback,
+          recommendation: feedback || '',
           overall_rating: rating ? parseInt(rating, 10) : 0
-        } : undefined
+        }
       };
 
       await api.createInterview(interviewData);

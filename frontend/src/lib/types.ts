@@ -1,7 +1,5 @@
-import { UUID } from "crypto"
-
 export interface Project {
-  id: UUID
+  id: string
   title: string
   department: string
   headcount: number
@@ -22,7 +20,7 @@ export interface Project {
 }
 
 export interface Candidate {
-  id: UUID
+  id: string
   name: string
   email: string
   phone: string
@@ -32,19 +30,19 @@ export interface Candidate {
 }
 
 export interface Resume {
-  id: UUID
-  candidate_id: UUID
+  id: string
+  candidate_id: string
   file_path: string
-  parsed_content: string
+  file_type: string
+  parsed_content: string | null
   tags: Tag[]
   created_at: string
-  updated_at: string
 }
 
 export interface Interview {
-  id: UUID
-  project_id: UUID
-  candidate_id: UUID
+  id: string
+  project_id: string
+  candidate_id: string
   scheduled_time: string
   interview_type: string
   status: string
@@ -55,6 +53,6 @@ export interface Interview {
 }
 
 export interface Tag {
-  id: UUID
+  id: string
   name: string
 }

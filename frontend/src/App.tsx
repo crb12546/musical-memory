@@ -5,7 +5,7 @@ import { ProjectList } from './components/ui/project-list'
 import { ProjectForm } from './components/ui/project-form'
 import { ResumeUpload } from './components/ui/resume-upload'
 import { CandidateList } from './components/ui/candidate-list'
-import { InterviewScheduler } from './components/ui/interview-scheduler'
+import InterviewScheduler from './components/ui/interview-scheduler'
 import { AnalyticsDashboard } from './components/ui/analytics-dashboard'
 import { SidebarProvider, Sidebar, SidebarMenu } from './components/ui/sidebar'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './components/ui/dialog'
@@ -19,7 +19,6 @@ import { toast } from 'sonner'
 
 export default function App() {
   const [activeSection, setActiveSection] = useState<string>("project-list")
-  const [loading, setLoading] = useState(false)
   const [showProjectForm, setShowProjectForm] = useState(false)
 
   const [selectedProject, setSelectedProject] = useState<Project | null>(null)
@@ -75,10 +74,9 @@ export default function App() {
     }
   }, []);
 
-  // Initial data load with loading state
+  // Initial data load
   useEffect(() => {
-    setLoading(true);
-    refreshData().finally(() => setLoading(false));
+    refreshData();
   }, [refreshData]);
 
   // Auto refresh with error handling and loading state
