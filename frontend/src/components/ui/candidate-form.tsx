@@ -19,8 +19,7 @@ export function CandidateForm({ onSuccess }: { onSuccess?: () => void }) {
         name: formData.get('name') as string,
         email: formData.get('email') as string,
         phone: formData.get('phone') as string,
-        status: 'active',
-        updated_at: new Date().toISOString(),
+        state: 'available',
       });
       if (response && response.id) {
         toast.success("Candidate created successfully");
