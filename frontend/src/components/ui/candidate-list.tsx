@@ -9,6 +9,7 @@ import { FileText, Mail, Phone } from "lucide-react";
 import { ResumePreview } from "./resume-preview";
 import type { Resume as ApiResume } from "../../lib/api";
 import type { Resume as TypesResume } from "../../lib/types";
+import { useState, useEffect } from "react";
 
 type CandidateState = 'available' | 'interviewing' | 'hired';
 

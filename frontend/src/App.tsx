@@ -19,7 +19,8 @@ import { toast } from 'sonner'
 
 export default function App() {
   const [activeSection, setActiveSection] = useState<string>("project-list")
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
+  const [showProjectForm, setShowProjectForm] = useState(false);
 
   // Loading state effect
   useEffect(() => {
