@@ -22,7 +22,7 @@ primary_region = 'sin'
   processes = ['app']
 
 [processes]
-  app = "bash -c './start.sh'"
+  app = "/workspace/start.sh"
 
 [build.args]
   BP_CPYTHON_VERSION = '3.10'
