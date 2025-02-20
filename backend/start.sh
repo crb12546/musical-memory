@@ -10,8 +10,8 @@ export PORT=${PORT:-8080}
 
 # Run migrations
 echo "Running database migrations..."
-python -m alembic upgrade head
+cd /workspace && alembic upgrade head
 
 # Start the application
 echo "Starting FastAPI application..."
-python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT
+cd /workspace && uvicorn app.main:app --host 0.0.0.0 --port $PORT
