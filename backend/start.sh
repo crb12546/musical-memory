@@ -2,13 +2,12 @@
 set -e
 
 # Set up environment
+cd /workspace
 export PYTHONPATH=/workspace
 export PYTHONUNBUFFERED=1
-export ALEMBIC_CONFIG=/workspace/alembic.ini
 
-# Run migrations
-cd /workspace
-alembic upgrade head
+# Run migrations first
+python -m alembic upgrade head
 
-# Start the application
-exec uvicorn app.main:app --host 0.0.0.0 --port 8080 --workers 1
+# Then start the application
+python -m uvicorn app.main:app --host 0.0.0.0 --port 8080
