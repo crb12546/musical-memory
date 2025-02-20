@@ -6,6 +6,8 @@ from .models import Base
 
 # Get database URL from environment variable or use SQLite as fallback
 SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./app.db")
+if SQLALCHEMY_DATABASE_URL.startswith("postgres://"):
+    SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace("postgres://", "postgresql://")
 
 # Create engine with appropriate connection arguments
 if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
