@@ -12,8 +12,6 @@ primary_region = 'sin'
 [env]
   PORT = '8080'
   PYTHONUNBUFFERED = 'true'
-  DATABASE_URL = 'postgresql://postgres:postgres@musical-memory-db.internal:5432/musical_memory'
-  CORS_ORIGINS = 'https://project-overview-app-j1wbaam2.devinapps.com'
 
 [http_service]
   internal_port = 8080
