@@ -24,7 +24,7 @@ primary_region = 'sin'
 [build.args]
   BP_CPYTHON_VERSION = '3.10'
   BP_PIP_VERSION = '23.1.2'
-  BP_APT_PACKAGES = 'sqlite3 libsqlite3-dev'
+  BP_APT_PACKAGES = 'libpq-dev'
 
 [[vm]]
   cpu_kind = 'shared'

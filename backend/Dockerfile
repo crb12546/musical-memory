@@ -1,8 +1,8 @@
 FROM python:3.10-slim
 
-# Install system dependencies including SQLite
+# Install system dependencies
 RUN apt-get update && \
-    apt-get install -y sqlite3 libsqlite3-dev && \
+    apt-get install -y libpq-dev && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /workspace
