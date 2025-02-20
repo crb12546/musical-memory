@@ -22,7 +22,7 @@ primary_region = 'sin'
   processes = ['app']
 
 [processes]
-  app = "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8080"
+  app = "./start.sh"
 
 [build.args]
   BP_CPYTHON_VERSION = '3.10'
