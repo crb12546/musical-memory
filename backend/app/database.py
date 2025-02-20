@@ -1,6 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import os
+import time
 from . import models
 from .models import Base
 
@@ -22,8 +23,15 @@ Base.metadata.create_all(bind=engine)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+    retries = 3
+    while retries > 0:
+        try:
+            db = SessionLocal()
+            yield db
+        except Exception as e:
+            retries -= 1
+            if retries == 0:
+                raise
+            time.sleep(1)
+        finally:
+            db.close()
