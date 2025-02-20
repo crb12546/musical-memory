@@ -11,6 +11,7 @@ primary_region = 'sin'
 
 [env]
   PORT = '8080'
+  PYTHONUNBUFFERED = 'true'
 
 [http_service]
   internal_port = 8080
@@ -20,7 +21,10 @@ primary_region = 'sin'
   min_machines_running = 0
   processes = ['app']
 
-
+[build.args]
+  BP_CPYTHON_VERSION = '3.10'
+  BP_PIP_VERSION = '23.3.1'
+  BP_SQLITE_VERSION = '3.42.0'
 
 [[vm]]
   cpu_kind = 'shared'
