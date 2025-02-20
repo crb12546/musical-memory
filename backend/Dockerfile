@@ -12,4 +12,5 @@ RUN pip install -r requirements.txt
 
 COPY . .
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
+# Run migrations and start the application
+CMD alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8080
