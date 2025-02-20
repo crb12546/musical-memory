@@ -8,9 +8,14 @@ RUN apt-get update && \
 WORKDIR /workspace
 
 COPY requirements.txt .
-RUN pip install -r requirements.txt
+RUN pip install -r requirements.txt && \
+    pip install alembic psycopg2-binary
 
 COPY . .
 
-# Run migrations and start the application
-CMD alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8080
+# Make start script executable
+COPY start.sh .
+RUN chmod +x start.sh
+
+# Run the start script
+CMD ["./start.sh"]
