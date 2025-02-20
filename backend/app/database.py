@@ -13,11 +13,16 @@ if SQLALCHEMY_DATABASE_URL.startswith("postgres://"):
 print(f"Using database URL: {SQLALCHEMY_DATABASE_URL}")
 
 # Create engine with appropriate connection arguments
+print(f"Database URL before parsing: {SQLALCHEMY_DATABASE_URL}")
 if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
     engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
 else:
-    # For PostgreSQL, replace postgres:// with postgresql:// in URL if needed
-    engine = create_engine(SQLALCHEMY_DATABASE_URL.replace("postgres://", "postgresql://"))
+    # For PostgreSQL, ensure URL uses postgresql:// prefix
+    db_url = SQLALCHEMY_DATABASE_URL
+    if db_url.startswith("postgres://"):
+        db_url = db_url.replace("postgres://", "postgresql://")
+    print(f"Final database URL: {db_url}")
+    engine = create_engine(db_url)
 
 # Create all tables at startup
 Base.metadata.create_all(bind=engine)
