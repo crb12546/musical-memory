@@ -4,7 +4,7 @@ import os
 from . import models
 
 # Get database URL from environment variable or use default PostgreSQL
-SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/musical_memory")
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@musical-memory-db.internal:5432/musical_memory")
 
 # Create engine with proper dialect
 engine = create_engine(SQLALCHEMY_DATABASE_URL.replace("postgres://", "postgresql://"))
