@@ -4,10 +4,7 @@ from typing import List, Dict, Any
 import docx
 from PyPDF2 import PdfReader
 import os
-from dotenv import load_dotenv
 from .schemas import ParsedResumeContent
-
-load_dotenv()
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
