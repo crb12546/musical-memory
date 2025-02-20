@@ -17,10 +17,8 @@ app = FastAPI()
 # Configure CORS for frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://musical-memory-frontend-v1.fly.dev",
-        "https://project-overview-app-j1wbaam2.devinapps.com"
-    ],
+    allow_origins=["*"],  # Temporarily allow all origins for testing
+    allow_credentials=False,  # Must be False when using allow_origins=["*"]
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=["Content-Type", "Authorization", "Accept", "Origin", "X-Requested-With"],
