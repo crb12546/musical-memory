@@ -6,7 +6,8 @@ from . import models
 # Get database URL from environment variable or use default PostgreSQL
 SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/musical_memory")
 
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
+# Create engine with proper dialect
+engine = create_engine(SQLALCHEMY_DATABASE_URL.replace("postgres://", "postgresql://"))
 
 # Database initialization moved to FastAPI startup event
 
