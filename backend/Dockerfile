@@ -9,7 +9,8 @@ WORKDIR /workspace
 
 COPY requirements.txt .
 RUN pip install -r requirements.txt && \
-    pip install alembic psycopg2-binary
+    pip install "alembic>=1.13.1" "psycopg2-binary>=2.9.9" && \
+    pip install --no-cache-dir -e .
 
 COPY . .
 
